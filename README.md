@@ -93,6 +93,7 @@ docker run \
 
 ## TODO
 
+* Generate RPC secret with `openssl rand -hex 16`
 * Don't hardcode secrets in Compose file!
 
 ## Conclusion
