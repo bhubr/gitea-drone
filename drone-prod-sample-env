@@ -1,0 +1,17 @@
+# Sample env file for Drone Server/Agent setup with Docker Compose
+
+# For Drone server: URL of Gogs instance
+DRONE_GOGS_SERVER=https://gogs.server.com
+
+# Shared by Drone server and agent
+DRONE_RPC_SECRET="Result of `openssl rand -hex 16`"
+DRONE_SERVER_HOST=drone.domain.tld
+DRONE_SERVER_PROTO=https
+
+# For Drone agent
+DRONE_UI_USERNAME=BasicHttpAuthUsername
+DRONE_UI_PASSWORD=BasicHttpAuthPassword
+
+# For ports exposed by Docker
+EXPOSED_DRONE_PORT_SERVER=
+EXPOSED_DRONE_PORT_AGENT=
