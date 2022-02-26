@@ -94,3 +94,7 @@ docker run \
 ## TODO
 
 * Don't hardcode secrets in Compose file!
+
+## Conclusion
+
+It works!
