@@ -48,8 +48,10 @@ ALLOWED_HOST_LIST = drone
 
 ## ALSO in Gitea's repos...
 
+In Drone server's SQLite db:
+
 ```
-UPDATE repos SET repo_clone_url = 'http://drone:3000/benoit/gitea-drone.git' WHERE repo_id = 1;
+UPDATE repos SET repo_clone_url = 'http://gitea:3000/benoit/gitea-drone.git' WHERE repo_id = 1;
 ```
 
 ## Noob errors
