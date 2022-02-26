@@ -1,0 +1,58 @@
+---
+- name: Install Docker
+  hosts:
+    - docker
+  become: true
+  tasks:
+    - name: Install Docker
+      apk:
+        name:
+          - docker
+          - docker-compose
+        update_cache: yes
+    - name: Start Docker service
+      service:
+        name: docker
+        state: started
+    - name: Create Docker network
+      docker_network:
+        name: drone
+    - name: Run Drone Server in Docker
+      docker_container:
+        name: drone
+        state: started
+        image: drone/drone:2
+        exposed_ports:
+          - 80
+        env:
+          DRONE_GITEA_SERVER=http://gitea:3000
+          DRONE_GITEA_CLIENT_ID=abc
+          DRONE_GITEA_CLIENT_SECRET=cde
+          DRONE_RPC_SECRET=secret
+          DRONE_SERVER_HOST=drone
+          DRONE_SERVER_PROTO=http
+        restart_policy: always
+        volumes:
+          - /opt/drone:/data
+        networks:
+          - name: drone
+    - name: Run Drone Runner in Docker
+      docker_container:
+        name: drone_runner
+        state: started
+        image: drone/drone-runner-docker:1
+        exposed_ports:
+          - 3300
+        env:
+          DRONE_RPC_PROTO=http
+          DRONE_RPC_HOST=drone
+          DRONE_RPC_SECRET=secret
+          DRONE_RUNNER_CAPACITY=2
+          DRONE_RUNNER_NAME=my-runner
+          DRONE_UI_USERNAME=root
+          DRONE_UI_PASSWORD=root
+        restart_policy: always
+        volumes:
+          - /var/run/docker.sock:/var/run/docker.sock
+        networks:
+          - name: drone

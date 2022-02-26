@@ -1,0 +1,10 @@
+---
+- name: Gitea
+  hosts:
+    - gitea
+  become: true
+  tasks:
+    - name: Install Gitea
+      apk:
+        name: gitea
+        update_cache: yes
