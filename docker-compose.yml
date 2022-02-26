@@ -45,14 +45,16 @@ services:
   drone_server:
     image: drone/drone:2
     container_name: drone
+    networks:
+      - gitea
     volumes: 
       - ./drone-server:/data
     environment:
-      - DRONE_GITEA_SERVER=gitea
-      - DRONE_GITEA_CLIENT_ID=74b57866-7c8d-4e88-9a4c-3c1cdfb7b3f4
-      - DRONE_GITEA_CLIENT_SECRET=ozviHt7Y7MX241zrYtsyWvEbGNZD86ToQosaen32P6A6
+      - DRONE_GITEA_SERVER=http://gitea:3000
+      - DRONE_GITEA_CLIENT_ID=c46897dd-a9fd-4e15-943d-63b983f782f1
+      - DRONE_GITEA_CLIENT_SECRET=C8uUrWxSLRbzTkXlLdqjj5oS6wCW6sFavDyUjm3piQmB
       - DRONE_RPC_SECRET=760d5e2dbac871f5d671078d97e6401b
-      - DRONE_SERVER_HOST=drone:8080
+      - DRONE_SERVER_HOST=localhost:8080
       - DRONE_SERVER_PROTO=http
     ports:
       - "8080:80"
@@ -64,6 +66,8 @@ services:
   drone_runner:
     image: drone/drone-runner-docker:1
     container_name: runner
+    networks:
+      - gitea
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
