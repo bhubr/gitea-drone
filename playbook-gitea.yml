@@ -4,7 +4,44 @@
     - gitea
   become: true
   tasks:
+    - name: Install Bash
+      apk:
+        name: bash
+        update_cache: yes
     - name: Install Gitea
       apk:
         name: gitea
         update_cache: yes
+    - name: Create git user
+      user:
+        name: git
+        # Equivalent to --home /home/git
+        create_home: yes
+        # Equivalent to --shell /bin/bash
+        shell: /bin/bash
+        # Equivalent to --system
+        system: yes
+        # --disabled-password
+        password: false
+        # Equivalent to --gecos 'Git VC'
+        comment: Git Version Control
+        # --group
+        groups: git
+    - name: Create Gitea var dirs
+      file:
+        name: "/var/lib/gitea/{{ item }}"
+        state: directory
+        owner: git
+        group: git
+        mode: '0750'
+      with_items:
+        - custom
+        - data
+        - log
+    - name: Create Gitea etc dir
+      file:
+        name: /etc/gitea
+        state: directory
+        owner: root
+        group: git
+        mode: '0770'
