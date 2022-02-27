@@ -349,6 +349,26 @@ VALUES(
 
 python3 -c 'import crypt;print(crypt.crypt(pw)'
 
+### Erreurs install Docker sur VM Drone
+
+D'abord
+
+```
+An exception occurred during task execution. To see the full traceback, use -vvv. The error was: ModuleNotFoundError: No module named 'requests'
+fatal: [192.168.56.24]: FAILED! => {"changed": false, "msg": "Failed to import the required Python library (Docker SDK for Python: docker above 5.0.0 (Python >= 3.6) or docker before 5.0.0 (Python 2.7) or docker-py (Python 2.6)) on localhost's Python /usr/bin/python3.9. Please read the module documentation and install it in the appropriate location. If the required library is installed, but Ansible is using the wrong Python interpreter, please consult the documentation on ansible_python_interpreter, for example via `pip install docker` (Python >= 3.6) or `pip install docker==4.4.4` (Python 2.7) or `pip install docker-py` (Python 2.6). The error was: No module named 'requests'"}
+```
+
+Donc installé `requests` puis
+
+```
+An exception occurred during task execution. To see the full traceback, use -vvv. The error was: ModuleNotFoundError: No module named 'pkg_resources'
+fatal: [192.168.56.24]: FAILED! => {"changed": false, "msg": "Failed to import the required Python library (setuptools) on localhost's Python /usr/bin/python3.9. Please read the module documentation and install it in the appropriate location. If the required library is installed, but Ansible is using the wrong Python interpreter, please consult the documentation on ansible_python_interpreter"}
+```
+
+Trouvé ceci :
+
+- https://stackoverflow.com/questions/62554991/how-do-i-install-python-on-alpine-linux
+- https://stackoverflow.com/questions/59384708/ansible-returns-with-failed-to-import-the-required-python-library-docker-sdk-f
 
 ## TODO
 
@@ -371,3 +391,4 @@ python3 -c 'import crypt;print(crypt.crypt(pw)'
 * [Pass variables from a playbook to another](https://www.unixarena.com/2019/05/passing-variable-from-one-playbook-to-another-playbook-ansible.html/)
 * [SQLite date/time functions](https://www.sqlite.org/lang_datefunc.html) pour `unixepoch()`
 * [How To Generate Linux User Encrypted Password for Ansible](https://computingforgeeks.com/generate-linux-user-encrypted-password-for-ansible/)
+* [symlink in ansible](https://stackoverflow.com/questions/48560311/how-to-create-a-relative-symlink-in-ansible)

@@ -1,7 +1,7 @@
 ---
 - name: Install Docker
   hosts:
-    - docker_new
+    - gitea_new
   become: true
   tasks:
     - name: Echo the output - OAUTH2_CLIENT_ID
@@ -47,9 +47,20 @@
     # - name: Create Docker network
     #   docker_network:
     #     name: drone
-    - name: Install Python requests library
+    - name: Install pip3
+      apk:
+        name: py3-pip
+        state: present
+    - name: Create symbolic link from python3 to python
+      file:
+        src: /usr/bin/python3
+        dest: /usr/bin/python
+        state: link
+    - name: Install Python dependencies
       pip:
-        name: requests
+        name:
+          - requests
+          - setuptools
         state: present
     - name: Run Drone Server in Docker
       docker_container:
