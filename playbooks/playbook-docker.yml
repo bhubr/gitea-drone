@@ -4,49 +4,46 @@
     - gitea_new
   become: true
   tasks:
-    - name: Echo the output - OAUTH2_CLIENT_ID
-      shell: echo {{ hostvars['GITEA_HOST']['OAUTH2_CLIENT_ID'] }}
-      register: GITEA_CLIENT_ID
-    - debug: var=GITEA_CLIENT_ID
-    - name: Echo the output - OAUTH2_CLIENT_SECRET
-      shell: echo {{ hostvars['GITEA_HOST']['OAUTH2_CLIENT_SECRET'] }}
-      register: GITEA_CLIENT_SECRET
-    - debug: var=GITEA_CLIENT_SECRET.stdout
-    ## BAD COPY-PASTA START ##
-    - name: Disable 3.15/main repo in /etc/apk/repositories
-      lineinfile:
-        dest: /etc/apk/repositories
-        regexp: '^(https?:\/\/[^/]*)\/v3\.15\/main.*$'
-        line: '#\1/v3.15/main\n'
-        backrefs: yes
-    - name: Enable edge/main repo in /etc/apk/repositories
-      lineinfile:
-        dest: /etc/apk/repositories
-        regexp: '^#(https?:\/\/([^/]*))\/edge\/main.*$'
-        line: '\1/edge/main'
-        state: present
-        backrefs: yes
-    - name: Enable edge/community repo in /etc/apk/repositories
-      lineinfile:
-        dest: /etc/apk/repositories
-        regexp: '^#(https?:\/\/([^/]*))\/edge\/community.*$'
-        line: '\1/edge/community'
-        state: present
-        backrefs: yes
-    ## BAD COPY-PASTA END ##
-    - name: Install Docker
-      apk:
-        name:
-          - docker
-          - docker-compose
-        update_cache: yes
+    # - name: Echo the output - OAUTH2_CLIENT_ID
+    #   shell: echo {{ hostvars['GITEA_HOST']['OAUTH2_CLIENT_ID'] }}
+    #   register: GITEA_CLIENT_ID
+    # - debug: var=GITEA_CLIENT_ID
+    # - name: Echo the output - OAUTH2_CLIENT_SECRET
+    #   shell: echo {{ hostvars['GITEA_HOST']['OAUTH2_CLIENT_SECRET'] }}
+    #   register: GITEA_CLIENT_SECRET
+    # - debug: var=GITEA_CLIENT_SECRET.stdout
+    # ## BAD COPY-PASTA START ##
+    # - name: Disable 3.15/main repo in /etc/apk/repositories
+    #   lineinfile:
+    #     dest: /etc/apk/repositories
+    #     regexp: '^(https?:\/\/[^/]*)\/v3\.15\/main.*$'
+    #     line: '#\1/v3.15/main\n'
+    #     backrefs: yes
+    # - name: Enable edge/main repo in /etc/apk/repositories
+    #   lineinfile:
+    #     dest: /etc/apk/repositories
+    #     regexp: '^#(https?:\/\/([^/]*))\/edge\/main.*$'
+    #     line: '\1/edge/main'
+    #     state: present
+    #     backrefs: yes
+    # - name: Enable edge/community repo in /etc/apk/repositories
+    #   lineinfile:
+    #     dest: /etc/apk/repositories
+    #     regexp: '^#(https?:\/\/([^/]*))\/edge\/community.*$'
+    #     line: '\1/edge/community'
+    #     state: present
+    #     backrefs: yes
+    # ## BAD COPY-PASTA END ##
+    # - name: Install Docker
+    #   apk:
+    #     name:
+    #       - docker
+    #       - docker-compose
+    #     update_cache: yes
     - name: Start Docker service
       service:
         name: docker
         state: started
-    # - name: Create Docker network
-    #   docker_network:
-    #     name: drone
     - name: Install pip3
       apk:
         name: py3-pip
@@ -71,9 +68,11 @@
         exposed_ports:
           - 80
         env:
+          # DRONE_GITEA_CLIENT_ID={{ GITEA_CLIENT_ID.stdout }}
+          # DRONE_GITEA_CLIENT_SECRET={{ GITEA_CLIENT_SECRET.stdout }}
           DRONE_GITEA_SERVER=http://gitea:3000
-          DRONE_GITEA_CLIENT_ID={{ GITEA_CLIENT_ID.stdout }}
-          DRONE_GITEA_CLIENT_SECRET={{ GITEA_CLIENT_SECRET.stdout }}
+          DRONE_GITEA_CLIENT_ID="012345"
+          DRONE_GITEA_CLIENT_SECRET="134134134"
           DRONE_RPC_SECRET=secret
           DRONE_SERVER_HOST=drone
           DRONE_SERVER_PROTO=http
@@ -81,8 +80,6 @@
         volumes:
           - /opt/drone:/data
         network_mode: host
-        # networks:
-        #   - name: drone
     - name: Run Drone Runner in Docker
       docker_container:
         name: drone_runner
@@ -102,5 +99,3 @@
         volumes:
           - /var/run/docker.sock:/var/run/docker.sock
         network_mode: host
-        # networks:
-        #   - name: drone
