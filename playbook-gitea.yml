@@ -103,7 +103,7 @@
         --username root \
         --password root1234 \
         --email root@gitea.tls
-      when: gitea_count_users.stdout.find('1') != -1
+      when: gitea_count_users.stdout != '1'
     - name: Make sure Gitea is started
       sysvinit:
           name: gitea
