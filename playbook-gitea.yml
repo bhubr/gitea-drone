@@ -101,16 +101,14 @@
       register: gitea_internal_token
       when: gitea_lock_present.stdout != '1'
     # Gitea doit écrire dans ce fichier au moment de l'installation.
-    # Puis le fichier peut être mis en lecture seule. La doc recommande 0640
-    # mais 0600 (lecture/écriture par root uniquement) est appliqué par
-    # défaut par ce package gitea pour Alpine.
+    # Puis le fichier peut être mis en lecture seule. La doc recommande 0640.
     - name: Create Gitea config file
       template:
         src: tmpl/app.ini.j2
         dest: /etc/gitea/app.ini
         owner: root
         group: www-data
-        mode: '0600'
+        mode: '0640'
       vars:
         LFS_JWT_SECRET: "{{ gitea_lfs_jwt_secret.stdout }}"
         INTERNAL_TOKEN: "{{ gitea_internal_token.stdout }}"
