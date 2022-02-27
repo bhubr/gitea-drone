@@ -17,6 +17,7 @@
         regexp: '^#(https?:\/\/([^/]*)\/)edge\/main.*$'
         line: '\1/edge/main'
         state: present
+        backrefs: yes
     # - name: Enable edge/community repo in /etc/apk/repositories
     #   lineinfile:
     #     dest: /etc/apk/repositories
