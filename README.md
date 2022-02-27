@@ -374,6 +374,14 @@ Trouvé ceci :
 
 * pas oublier hosts sur machine hôte
 * URL de redirection complète : <http://drone:8080/login> (à régler dans `playbooks/tmpl/oauth2_app_insert.sql.j2`)
+* ALLOWED_HOST_LIST / webhook
+* secret match pas!!!
+
+Secret : `pass`
+
+```
+sqlite3 /var/lib/gitea/db/gitea.db "UDPATE oauth2_application SET client_secret = '$2b$12$PbmKcT5Tzc.t9Jo9L9y9G.XOHR1thLXEkfntHnepFcM0UNGgEf5g.' WHERE id = ;"
+```
 
 ## TODO
 

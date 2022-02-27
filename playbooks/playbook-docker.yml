@@ -44,6 +44,7 @@
       service:
         name: docker
         state: started
+        enabled: yes
     - name: Install pip3
       apk:
         name: py3-pip
@@ -75,9 +76,10 @@
         exposed_ports:
           - 80
         env:
+          # DRONE_GITEA_CLIENT_SECRET={{ GITEA_CLIENT_SECRET.stdout }}
           DRONE_GITEA_SERVER=http://gitea:3000
           DRONE_GITEA_CLIENT_ID={{ GITEA_CLIENT_ID.stdout }}
-          DRONE_GITEA_CLIENT_SECRET={{ GITEA_CLIENT_SECRET.stdout }}
+          DRONE_GITEA_CLIENT_SECRET=pass
           DRONE_RPC_SECRET=secret
           DRONE_SERVER_HOST=drone:8080
           DRONE_SERVER_PROTO=http
