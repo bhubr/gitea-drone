@@ -59,22 +59,18 @@
     #     LFS_JWT_SECRET: "{{ gitea_lfs_jwt_secret.stdout }}"
     #     INTERNAL_TOKEN: "{{ gitea_internal_token.stdout }}"
     #   when: gitea_cfg.stat.exists == false
-    - name: Insert security block
-      lineinfile:
-        path: /etc/gitea/app.ini
-        regexp: '^\[security\]'
-        insertafter: EOF
-        line: '[security]'
-    - name: Insert INSERT_LOCK
-      lineinfile:
-        path: /etc/gitea/app.ini
-        regexp: '^\[security\]'
-        insertafter: '^\[security\]\n'
-        line: 'INSERT_LOCK=true'
+
     - name: Create gitea database
       shell: |
         gitea migrate \
         --config /etc/gitea/app.ini
+    # Insert INSTALL_LOCK after migrating DB
+    - name: Insert INSTALL_LOCK
+      lineinfile:
+        path: /etc/gitea/app.ini
+        regexp: '^INSTALL_LOCK'
+        insertafter: '^INTERNAL_TOKEN.*'
+        line: 'INSTALL_LOCK=true'
     - name: Check that admin user exists
       shell: |
         sqlite3 \
