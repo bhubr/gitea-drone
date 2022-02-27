@@ -88,7 +88,7 @@
       shell: |
         sqlite3 \
           /var/lib/gitea/db/gitea.db \
-          'select * from user;' \ | awk -F '|' '{ print $2 }'
+          'select count(*) from user;'
       register: gitea_count_users
     - name: Create gitea admin user
       shell: |
@@ -96,7 +96,7 @@
         --username root \
         --password root1234 \
         --email root@gitea.tls
-      when: gitea_count_users.stdout != '
+      when: gitea_count_users.stdout.find('1') != -1
     - name: Make sure Gitea is started
       sysvinit:
           name: gitea
