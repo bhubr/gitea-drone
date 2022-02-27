@@ -240,6 +240,9 @@ La bonne blague : le playbook que je me suis fait -censuré- à écrire pour ré
 
 ## TODO
 
+* Améliorations hosts :
+
+    * mettre dans l'inventory les noms des machines et le `/etc/hosts` comme sur les autres machines
 * Améliorations Gitea :
 
     * virer passwd hardcodés
