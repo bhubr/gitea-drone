@@ -99,3 +99,56 @@ docker run \
 ## Conclusion
 
 It works!
+
+## Setup sur Alpine
+
+### Setup initial Alpine
+
+Installation `sudo`
+
+```
+apk update
+apk add sudo
+```
+
+Ajout user `alpine`
+
+```
+adduser alpine
+addgroup alpine wheel
+echo '%wheel ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/wheel
+```
+
+### Génération et transfert des clés SSH
+
+```
+ssh-keygen -t ecdsa
+```
+
+Pas de passphrase, sauvegarder sous `~/.ssh/ssh-keygen -t ecdsa`
+
+```
+ssh-copy-id -i ~/.ssh/id_ecdsa_alpine_ipi.pub -p 4099 alpine@localhost
+```
+
+Puis login passwordless :
+
+```
+ssh -i ~/.ssh/id_ecdsa_alpine_ipi -p 4099 alpine@localhost
+```
+
+> **VM exportée à ce stade sous le nom `AlpineBaseStep01.ova`** (57 Mo)
+
+Reste :
+
+* Bash
+* Python3 (pour Ansible)
+* Inet static
+
+### Installation de bash et nano
+
+---
+
+## TODO
+
+* Scripter clonage machine : [VBoxManage clonevm](https://docs.oracle.com/en/virtualization/virtualbox/6.0/user/vboxmanage-clonevm.html)
