@@ -380,11 +380,14 @@ Trouvé ceci :
 Secret : `pass`
 
 ```
-sqlite3 /var/lib/gitea/db/gitea.db "UDPATE oauth2_application SET client_secret = '$2b$12$PbmKcT5Tzc.t9Jo9L9y9G.XOHR1thLXEkfntHnepFcM0UNGgEf5g.' WHERE id = ;"
+sqlite3 /var/lib/gitea/db/gitea.db "UPDATE oauth2_application SET client_secret = '$2b$12$PbmKcT5Tzc.t9Jo9L9y9G.XOHR1thLXEkfntHnepFcM0UNGgEf5g.' WHERE id = 1;"
 ```
+
+&rarr; change PASSWORD_HASH_ALGO de pbkdf2 à bcrypt
 
 ## TODO
 
+* Pass back loglevel to debug (app.ini/log)
 * Change default shell sur VMs Alpine : <https://wiki.alpinelinux.org/wiki/Change_default_shell#:~:text=Note%3A%20By%20default%20Alpine%20Linux,zsh%2C%20fish%20or%20another%20shell.&text=Now%20enter%20the%20path%20for,enter%20to%20confirm%20this%20change.>
 * Installer `jmespath` sur le contrôleur : `pip3 install jmespath`
 * Améliorations hosts :
