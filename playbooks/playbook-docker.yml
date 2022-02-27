@@ -67,42 +67,40 @@
           - docker
         state: present
         executable: /usr/bin/pip3
-    # - name: Run Drone Server in Docker
-    #   docker_container:
-    #     name: drone
-    #     state: started
-    #     image: drone/drone:2
-    #     exposed_ports:
-    #       - 80
-    #     env:
-    #       # DRONE_GITEA_CLIENT_ID={{ GITEA_CLIENT_ID.stdout }}
-    #       # DRONE_GITEA_CLIENT_SECRET={{ GITEA_CLIENT_SECRET.stdout }}
-    #       DRONE_GITEA_SERVER=http://gitea:3000
-    #       DRONE_GITEA_CLIENT_ID="012345"
-    #       DRONE_GITEA_CLIENT_SECRET="134134134"
-    #       DRONE_RPC_SECRET=secret
-    #       DRONE_SERVER_HOST=drone
-    #       DRONE_SERVER_PROTO=http
-    #     restart_policy: always
-    #     volumes:
-    #       - /opt/drone:/data
-    #     network_mode: host
-    # - name: Run Drone Runner in Docker
-    #   docker_container:
-    #     name: drone_runner
-    #     state: started
-    #     image: drone/drone-runner-docker:1
-    #     exposed_ports:
-    #       - 3300
-    #     env:
-    #       DRONE_RPC_PROTO=http
-    #       DRONE_RPC_HOST=drone
-    #       DRONE_RPC_SECRET=secret
-    #       DRONE_RUNNER_CAPACITY=2
-    #       DRONE_RUNNER_NAME=my-runner
-    #       DRONE_UI_USERNAME=root
-    #       DRONE_UI_PASSWORD=root
-    #     restart_policy: always
-    #     volumes:
-    #       - /var/run/docker.sock:/var/run/docker.sock
-    #     network_mode: host
+    - name: Run Drone Server in Docker
+      docker_container:
+        name: drone
+        state: started
+        image: drone/drone:2
+        exposed_ports:
+          - 80
+        env:
+          DRONE_GITEA_SERVER=http://gitea:3000
+          DRONE_GITEA_CLIENT_ID={{ GITEA_CLIENT_ID.stdout }}
+          DRONE_GITEA_CLIENT_SECRET={{ GITEA_CLIENT_SECRET.stdout }}
+          DRONE_RPC_SECRET=secret
+          DRONE_SERVER_HOST=drone
+          DRONE_SERVER_PROTO=http
+        restart_policy: always
+        volumes:
+          - /opt/drone:/data
+        network_mode: host
+    - name: Run Drone Runner in Docker
+      docker_container:
+        name: drone_runner
+        state: started
+        image: drone/drone-runner-docker:1
+        exposed_ports:
+          - 3300
+        env:
+          DRONE_RPC_PROTO=http
+          DRONE_RPC_HOST=drone
+          DRONE_RPC_SECRET=secret
+          DRONE_RUNNER_CAPACITY=2
+          DRONE_RUNNER_NAME=my-runner
+          DRONE_UI_USERNAME=root
+          DRONE_UI_PASSWORD=root
+        restart_policy: always
+        volumes:
+          - /var/run/docker.sock:/var/run/docker.sock
+        network_mode: host
