@@ -86,7 +86,7 @@
     - name: Detect INSTALL_LOCK to check if we need installing
       shell: grep INSTALL_LOCK /etc/gitea/app.ini | wc -l
       register: gitea_lock_present
-    - debug: var=gitea_lock_present
+    # - debug: var=gitea_lock_present
     # Ces deux variables sont respectivement une clé secrète et un token
     # qu'on génère préalablement, avant de les insérer comme variables dans le template.
     # En plus de ces deux variables, la PUBLIC_URL définie dans la section vars en haut
@@ -124,16 +124,16 @@
     - name: List Gitea users
       shell: sudo -u gitea gitea admin user list | grep -v IsAdmin | wc -l
       register: gitea_count_users
-    - debug: var=gitea_count_users
-    # # - name: Check that admin user exists
-    # #   shell: |
-    # #     sqlite3 \
-    # #       /var/lib/gitea/db/gitea.db \
-    # #       'select count(*) from user;'
-    # #   register: gitea_count_users
-    # # - debug: var=gitea_count_users
-    # # # On crée un utilisateur "admin", sauf si la tâche précédente
-    # # # a renvoyé une valeur de '1' dans gitea_count_users.stdout
+    # - debug: var=gitea_count_users
+    # - name: Check that admin user exists
+    #   shell: |
+    #     sqlite3 \
+    #       /var/lib/gitea/db/gitea.db \
+    #       'select count(*) from user;'
+    #   register: gitea_count_users
+    # - debug: var=gitea_count_users
+    # On crée un utilisateur "admin", sauf si la tâche précédente
+    # a renvoyé une valeur de '1' dans gitea_count_users.stdout
     - name: Create gitea admin user
       shell: |
         sudo -u gitea gitea admin user create --admin \
@@ -141,9 +141,9 @@
         --password root1234 \
         --email root@gitea.tls
       when: gitea_count_users.stdout != '1'
-    # # # Gitea étant configuré, on peut le démarrer
-    # # - name: Make sure Gitea is started
-    # #   service:
-    # #     name: gitea
-    # #     state: started
-    # #     enabled: yes
+    # Gitea étant configuré, on peut le démarrer
+    - name: Make sure Gitea is started
+      service:
+        name: gitea
+        state: started
+        enabled: yes
