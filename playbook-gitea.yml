@@ -1,15 +1,33 @@
+# Playbook modifié pour Gitea 1.16
 ---
 - name: Gitea
   hosts:
     - gitea_new
   become: true
   tasks:
-    - name: Enable main repo in /etc/apk/repositories
+    - name: Disable 3.15/main repo in /etc/apk/repositories
       lineinfile:
         dest: /etc/apk/repositories
-        regexp: '^#\s*3\.15\/community.*$'
-        line: 'http://alpine.42.fr/v3.15/community'
+        regexp: '^http.*3\.15\/main.*$'
+        line: 'http://alpine.42.fr/edge/main'
+    - name: Enable edge/main repo in /etc/apk/repositories
+      lineinfile:
+        dest: /etc/apk/repositories
+        regexp: '^#\s*edge\/main.*$'
+        line: 'http://alpine.42.fr/edge/main'
+    - name: Enable edge/community repo in /etc/apk/repositories
+      lineinfile:
+        dest: /etc/apk/repositories
+        regexp: '^#\s*edge\/community.*$'
+        line: 'http://alpine.42.fr/edge/community'
 
+    # Ansible peut rencontrer des problèmes s'il ne peut
+    # utiliser un shell Bash sur les "managed hosts"
+    # En plus de Bash, on installe Gitea (forge logicielle)
+    # et SQLite (Gitea peut s'en passer car il intègre
+    # dans son fichier exécutable la bibliothèque SQLite,
+    # mais on utilisera ce dernier pour vérifier des choses
+    # dans la base de données)
     - name: Install Bash, Gitea and SQLite
       apk:
         name:
@@ -17,62 +35,62 @@
           - gitea
           - sqlite
         update_cache: yes
-
+    # Le service doit être stoppé (state=stopped)
+    # avant d'effectuer des modifications,
+    # mais sera démarré au reboot (enabled=yes)
     - name: Make sure Gitea is NOT started
-      sysvinit:
+      service:
         name: gitea
         state: stopped
         enabled: yes
-    - name: Check gitea daemon
-      shell: ps a | grep 'supervise-daemon gitea' | head -n 1
-      register: gitea_daemon_status
-    - debug: var=gitea_daemon_status
-    - name: Kill Gitea Daemon
-      shell: |
-        start-stop-daemon \
-          --signal KILL \
-          --pidfile /run/gitea.pid
-      when: gitea_daemon_status.stdout.find('GITEA_WORK_DIR') != -1
-    - name: Check gitea instance
-      shell: ps a | grep 'gitea web' | head -n 1
-      register: gitea_instance
-    - debug: var=gitea_instance
-    - name: Kill Gitea instance
-      shell: killall gitea
-      when: gitea_instance.stdout.find('app.ini') != -1
+    # Gitea utilise une base de données SQLite3, laquelle
+    # est entièrement contenue dans un simple fichier
+    # (gitea.db). On vérifie si le fichier existe avec stat,
+    # et enregistre le résultat comme variable.
     - name: Check if Gitea SQLite3 database exists
       stat: path=/var/lib/gitea/db/gitea.db
       ignore_errors: true
       register: gitea_db
-
+    # Utilisation du when pour ne créer la BDD que si
+    # elle n'existe pas encore
     - name: Create gitea database
       shell: |
         sudo -u gitea gitea migrate \
         --config /etc/gitea/app.ini
       when: gitea_db.stat.exists == false
-    # IMPORTANT: insert INSTALL_LOCK after migrating DB
-    - name: Insert INSTALL_LOCK
+    # Gitea stocke sa configuration dans le fichier app.ini
+    # Lorsqu'on l'installe "normalement" (de façon non-automatisée),
+    # on doit valider les paramètres via une page web.
+    # Insérer la ligne INSTALL_LOCK=true, si elle n'existe pas,
+    # permet de passer cette étape.
+    - name: Insert INSTALL_LOCK to bypass web-based install
       lineinfile:
         path: /etc/gitea/app.ini
         regexp: '^INSTALL_LOCK'
         insertafter: '^INTERNAL_TOKEN.*'
         line: 'INSTALL_LOCK=true'
-    - name: Check that admin user exists
-      shell: |
-        sqlite3 \
-          /var/lib/gitea/db/gitea.db \
-          'select count(*) from user;'
-      register: gitea_count_users
-    - debug: var=gitea_count_users
-    - name: Create gitea admin user
-      shell: |
-        sudo -u gitea gitea admin user create --admin \
-        --username root \
-        --password root1234 \
-        --email root@gitea.tls
-      when: gitea_count_users.stdout != '1'
-    - name: Make sure Gitea is started
-      sysvinit:
-        name: gitea
-        state: started
-        enabled: yes
+    # Ici, on exécute directement une requête SQL en ligne
+    # de commande, sur la BDD contenue dans gitea.db,
+    # afin de récupérer le nombre d'utilisateurs existants.
+    # - name: Check that admin user exists
+    #   shell: |
+    #     sqlite3 \
+    #       /var/lib/gitea/db/gitea.db \
+    #       'select count(*) from user;'
+    #   register: gitea_count_users
+    # - debug: var=gitea_count_users
+    # # On crée un utilisateur "admin", sauf si la tâche précédente
+    # # a renvoyé une valeur de '1' dans gitea_count_users.stdout
+    # - name: Create gitea admin user
+    #   shell: |
+    #     sudo -u gitea gitea admin user create --admin \
+    #     --username root \
+    #     --password root1234 \
+    #     --email root@gitea.tls
+    #   when: gitea_count_users.stdout != '1'
+    # # Gitea étant configuré, on peut le démarrer
+    # - name: Make sure Gitea is started
+    #   service:
+    #     name: gitea
+    #     state: started
+    #     enabled: yes

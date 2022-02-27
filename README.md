@@ -117,6 +117,10 @@ addgroup alpine wheel
 echo '%wheel ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/wheel
 ```
 
+### Simplification mdp root
+
+De `Alpine31` à `alpine`.
+
 ### Génération et transfert des clés SSH
 
 ```
@@ -200,6 +204,34 @@ Ou plus simplement :
 
 ```
 killall gitea
+```
+
+## Remettre les VMs à zéro
+
+### VM Gitea
+
+Ancienne façon (éventuellement reboot si  `/etc/init.d/gitea stop` échoue) :
+
+```
+/etc/init.d/gitea stop
+start-stop-daemon --signal KILL --pidfile /run/gitea.pid
+kill -9 `ps a | grep gitea | head -n 1 | awk '{ print $1 }'`
+sudo apk del gitea
+sudo rm -rf /etc/gitea /var/lib/gitea
+```
+
+Nouvelle façon :
+
+```
+sudo rc-service gitea stop
+sudo apk del gitea
+sudo rm -rf /etc/gitea /var/lib/gitea
+```
+
+## VM Docker
+
+```
+sudo apk del docker
 ```
 
 ## Changelog
