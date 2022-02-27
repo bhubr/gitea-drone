@@ -174,12 +174,33 @@ ssh-copy-id -i .ssh/id_ecdsa.pub 192.168.56.23
 
 ### Installation de bash et nano
 
-### Lancer manuellement le supervise daemon
+### Gérer manuellement le supervise daemon
+
+#### Lancer `start-stop-daemon` de Gitea
 
 ```
 supervise-daemon gitea --start --pidfile /run/gitea.pid --user gitea --env GITEA_WORK_DIR=/var/lib/gitea --chdir /var/lib/gitea --stdout /var/log/gitea/http.log --stderr /var/log/gitea/http.log /usr/bin/gitea -- web --config /etc/gitea/app.ini
 ```
 
+#### Tuer `start-stop-daemon` de Gitea
+
+`/etc/init.d/gitea stop` ne fonctionne pas. Ceci fonctionne :
+
+```
+start-stop-daemon --signal KILL --pidfile /run/gitea.pid
+```
+
+Mais cela ne suffit pas, il faut encore tuer l'instance de Gitea :
+
+```
+kill -9 `ps a | grep gitea | head -n 1 | awk '{ print $1 }'`
+```
+
+Ou plus simplement :
+
+```
+killall gitea
+```
 
 ## TODO
 

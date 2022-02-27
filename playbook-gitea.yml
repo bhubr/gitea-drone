@@ -40,28 +40,6 @@
     - name: Kill Gitea instance
       shell: killall gitea
       when: gitea_instance.stdout.find('app.ini') != -1
-    # - name: Output current date as a variable
-    #   shell: date
-    #   register: current_date
-    # - name: Generate Gitea LFS_JWT_SECRET
-    #   shell: gitea generate secret LFS_JWT_SECRET
-    #   register: gitea_lfs_jwt_secret
-    # - name: Generate Gitea INTERNAL_TOKEN
-    #   shell: gitea generate secret INTERNAL_TOKEN
-    #   register: gitea_internal_token
-    # - debug: var=gitea_cfg
-    # - name: Create Gitea config file
-    #   template:
-    #     src: tmpl/app.ini.j2
-    #     dest: /etc/gitea/app.ini
-    #     owner: root
-    #     group: gitea
-    #     mode: '0640'
-    #   vars:
-    #     GENERATED_AT: "{{ current_date.stdout }}"
-    #     LFS_JWT_SECRET: "{{ gitea_lfs_jwt_secret.stdout }}"
-    #     INTERNAL_TOKEN: "{{ gitea_internal_token.stdout }}"
-    #   when: gitea_cfg.stat.exists == false
     - name: Check if Gitea SQLite3 database exists
       stat: path=/var/lib/gitea/db/gitea.db
       ignore_errors: true
@@ -72,7 +50,7 @@
         sudo -u gitea gitea migrate \
         --config /etc/gitea/app.ini
       when: gitea_db.stat.exists == false
-    # Insert INSTALL_LOCK after migrating DB
+    # IMPORTANT: insert INSTALL_LOCK after migrating DB
     - name: Insert INSTALL_LOCK
       lineinfile:
         path: /etc/gitea/app.ini
