@@ -8,6 +8,11 @@
     PUBLIC_URL: http://localhost:3031/
     # PUBLIC_URL: http://gitea:3000/
   tasks:
+    # Activation des dépôts "edge" (dernières versions des
+    # packages) de Linux Alpine, et désactivation des dépôts
+    # "normaux" (ceux d'Alpine v3.15 ici).
+    # Ceci pour résoudre un problème avec la gestion du service
+    # Gitea, qui est résolu dans la dernière version.
     - name: Disable 3.15/main repo in /etc/apk/repositories
       lineinfile:
         dest: /etc/apk/repositories
@@ -32,10 +37,6 @@
     # Ansible peut rencontrer des problèmes s'il ne peut
     # utiliser un shell Bash sur les "managed hosts"
     # En plus de Bash, on installe Gitea (forge logicielle)
-    # et SQLite (Gitea peut s'en passer car il intègre
-    # dans son fichier exécutable la bibliothèque SQLite,
-    # mais on utilisera ce dernier pour vérifier des choses
-    # dans la base de données)
     - name: Install Bash, Gitea and SQLite
       apk:
         name:
@@ -119,7 +120,7 @@
     # d'en-tête (identifiée par la présence d'un champ "IsAdmin")
     # et on pipe le tout vers wc -l pour compter les lignes correspondant
     # réellement à des utilisateurs enregistrés.
-    - name: List Gitea users
+    - name: Count Gitea users
       shell: sudo -u gitea gitea admin user list | grep -v IsAdmin | wc -l
       register: gitea_count_users
     # - debug: var=gitea_count_users

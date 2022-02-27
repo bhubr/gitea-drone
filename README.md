@@ -225,7 +225,7 @@ Nouvelle façon :
 ```
 sudo rc-service gitea stop
 sudo apk del gitea
-sudo rm -rf /etc/gitea /var/lib/gitea
+sudo rm -rf /etc/gitea /var/lib/gitea /var/log/gitea
 ```
 
 ## VM Docker
@@ -240,4 +240,5 @@ La bonne blague : le playbook que je me suis fait -censuré- à écrire pour ré
 
 ## TODO
 
+* Améliorations Gitea : créer un nombre de comptes utilisateurs
 * Scripter clonage machine : [VBoxManage clonevm](https://docs.oracle.com/en/virtualization/virtualbox/6.0/user/vboxmanage-clonevm.html)
