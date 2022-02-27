@@ -64,6 +64,7 @@
         name:
           - requests
           - setuptools
+          - docker
         state: present
         executable: /usr/bin/pip3
     - name: Run Drone Server in Docker
