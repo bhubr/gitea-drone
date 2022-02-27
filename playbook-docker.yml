@@ -14,9 +14,9 @@
       service:
         name: docker
         state: started
-    - name: Create Docker network
-      docker_network:
-        name: drone
+    # - name: Create Docker network
+    #   docker_network:
+    #     name: drone
     - name: Run Drone Server in Docker
       docker_container:
         name: drone
@@ -34,8 +34,9 @@
         restart_policy: always
         volumes:
           - /opt/drone:/data
-        networks:
-          - name: drone
+        network_mode: host
+        # networks:
+        #   - name: drone
     - name: Run Drone Runner in Docker
       docker_container:
         name: drone_runner
@@ -54,5 +55,6 @@
         restart_policy: always
         volumes:
           - /var/run/docker.sock:/var/run/docker.sock
-        networks:
-          - name: drone
+        network_mode: host
+        # networks:
+        #   - name: drone
