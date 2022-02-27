@@ -18,9 +18,15 @@
         state: stopped
         enabled: yes
     - name: Check gitea processes
-      shell: ps aux | grep gitea
-      register: gitea_ps_before
-    - debug: var=gitea_ps_before
+      shell: ps aux | grep 'supervise-daemon gitea'
+      register: gitea_daemon
+    - debug: var=gitea_daemon
+    # - name: Kill Gitea
+    #   shell: |
+    #     start-stop-daemon \
+    #       --signal KILL
+    #       --pidfile /run/gitea.pid 
+    #   when: 
     # TEMPORARY
     - name: Remove git group
       group:
