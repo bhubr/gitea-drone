@@ -69,6 +69,11 @@
     - name: Generate Gitea INTERNAL_TOKEN
       shell: gitea generate secret INTERNAL_TOKEN
       register: gitea_internal_token
+    - name: Check if Gitea config file exists
+      stat: path=/etc/gitea/app.ini
+      ignore_errors: true
+      register: gitea_cfg
+    - debug: var=gitea_cfg
     - name: Create Gitea config file
       template:
         src: tmpl/app.ini.j2
@@ -80,6 +85,7 @@
         GENERATED_AT: "{{ current_date.stdout }}"
         LFS_JWT_SECRET: "{{ gitea_lfs_jwt_secret.stdout }}"
         INTERNAL_TOKEN: "{{ gitea_internal_token.stdout }}"
+      when: gitea_cfg.stat.exists == false
     - name: Create gitea database
       shell: |
         gitea migrate \
@@ -90,6 +96,7 @@
           /var/lib/gitea/db/gitea.db \
           'select count(*) from user;'
       register: gitea_count_users
+    - debug: var=gitea_count_users
     - name: Create gitea admin user
       shell: |
         gitea admin user create --admin \
