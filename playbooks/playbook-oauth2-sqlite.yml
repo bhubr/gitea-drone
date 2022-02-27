@@ -20,7 +20,8 @@
       register: client_secret
     - debug: var=client_secret
     - name: Generate hashed Secret with Bcrypt
-      shell: python3 -c "import crypt;print(crypt.crypt('{{ client_secret.stdout }}'))"
+      # shell: python3 -c "import crypt;print(crypt.crypt('{{ client_secret.stdout }}'))"
+      shell: python3 -c "import bcrypt;print(bcrypt.hashpw('pass', bcrypt.gensalt()))"
       register: client_secret_hashed
     - debug: var=client_secret_hashed
     - name: Generate Unix timestamp

@@ -380,7 +380,7 @@ Trouvé ceci :
 Secret : `pass`
 
 ```
-sqlite3 /var/lib/gitea/db/gitea.db "UPDATE oauth2_application SET client_secret = '$2b$12$PbmKcT5Tzc.t9Jo9L9y9G.XOHR1thLXEkfntHnepFcM0UNGgEf5g.' WHERE id = 1;"
+sqlite3 /var/lib/gitea/db/gitea.db "UPDATE oauth2_application SET client_secret = '$2b$12$nCd1oSoivvBaBDwGJIZKxuCTu3yFyQW7i9NyRdgg/eqxCbNrCzR8O' WHERE id = 1;"
 ```
 
 &rarr; change PASSWORD_HASH_ALGO de pbkdf2 à bcrypt
