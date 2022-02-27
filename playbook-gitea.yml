@@ -49,6 +49,9 @@
         owner: root
         group: git
         mode: '0770'
+    - name: Output current date as a variable
+      shell: date
+      register: current_date
     - name: Generate Gitea LFS_JWT_SECRET
       shell: gitea generate secret LFS_JWT_SECRET
       register: gitea_lfs_jwt_secret
@@ -63,5 +66,6 @@
         group: git
         mode: '0640'
       vars:
+        GENERATED_AT: "{{ current_date.stdout }}"
         LFS_JWT_SECRET: "{{ gitea_lfs_jwt_secret.stdout }}"
         INTERNAL_TOKEN: "{{ gitea_internal_token.stdout }}"
