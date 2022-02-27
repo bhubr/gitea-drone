@@ -14,16 +14,16 @@
     - name: Enable edge/main repo in /etc/apk/repositories
       lineinfile:
         dest: /etc/apk/repositories
-        regexp: '^#(https?:\/\/([^/]*)\/)edge\/main.*$'
+        regexp: '^#(https?:\/\/([^/]*))\/edge\/main.*$'
         line: '\1/edge/main'
         state: present
         backrefs: yes
-    # - name: Enable edge/community repo in /etc/apk/repositories
-    #   lineinfile:
-    #     dest: /etc/apk/repositories
-    #     regexp: '^#\s*edge\/community.*$'
-    #     line: 'http://alpine.42.fr/edge/community'
-    #     state: present
+    - name: Enable edge/community repo in /etc/apk/repositories
+      lineinfile:
+        regexp: '^#(https?:\/\/([^/]*))\/edge\/community.*$'
+        line: '\1/edge/community'
+        state: present
+        backrefs: yes
 
     # # Ansible peut rencontrer des problèmes s'il ne peut
     # # utiliser un shell Bash sur les "managed hosts"
