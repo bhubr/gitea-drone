@@ -82,3 +82,8 @@
         GENERATED_AT: "{{ current_date.stdout }}"
         LFS_JWT_SECRET: "{{ gitea_lfs_jwt_secret.stdout }}"
         INTERNAL_TOKEN: "{{ gitea_internal_token.stdout }}"
+    - name: Make sure Gitea is started
+      sysvinit:
+          name: gitea
+          state: started
+          enabled: yes
