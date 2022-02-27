@@ -78,9 +78,9 @@
     # # de commande, sur la BDD contenue dans gitea.db,
     # # afin de récupérer le nombre d'utilisateurs existants.
     - name: List Gitea users
-      shell: sudo -u gitea gitea admin user list
-      register: gitea_list_users
-    - debug: gitea_list_users
+      shell: sudo -u gitea gitea admin user list | grep -v IsAdmin | wc -l
+      register: gitea_count_users
+    - debug: var=gitea_count_users
     # # - name: Check that admin user exists
     # #   shell: |
     # #     sqlite3 \
@@ -90,13 +90,13 @@
     # # - debug: var=gitea_count_users
     # # # On crée un utilisateur "admin", sauf si la tâche précédente
     # # # a renvoyé une valeur de '1' dans gitea_count_users.stdout
-    # # - name: Create gitea admin user
-    # #   shell: |
-    # #     sudo -u gitea gitea admin user create --admin \
-    # #     --username root \
-    # #     --password root1234 \
-    # #     --email root@gitea.tls
-    # #   when: gitea_count_users.stdout != '1'
+    - name: Create gitea admin user
+      shell: |
+        sudo -u gitea gitea admin user create --admin \
+        --username root \
+        --password root1234 \
+        --email root@gitea.tls
+      when: gitea_count_users.stdout != '1'
     # # # Gitea étant configuré, on peut le démarrer
     # # - name: Make sure Gitea is started
     # #   service:
