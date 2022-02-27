@@ -370,6 +370,11 @@ Trouvé ceci :
 - https://stackoverflow.com/questions/62554991/how-do-i-install-python-on-alpine-linux
 - https://stackoverflow.com/questions/59384708/ansible-returns-with-failed-to-import-the-required-python-library-docker-sdk-f
 
+### Ça marche ! (presque)
+
+* pas oublier hosts sur machine hôte
+* URL de redirection complète : <http://drone:8080/login> (à régler dans `playbooks/tmpl/oauth2_app_insert.sql.j2`)
+
 ## TODO
 
 * Change default shell sur VMs Alpine : <https://wiki.alpinelinux.org/wiki/Change_default_shell#:~:text=Note%3A%20By%20default%20Alpine%20Linux,zsh%2C%20fish%20or%20another%20shell.&text=Now%20enter%20the%20path%20for,enter%20to%20confirm%20this%20change.>
@@ -382,6 +387,7 @@ Trouvé ceci :
     * virer passwd hardcodés
     * créer un nombre de comptes utilisateurs
 * Scripter clonage machine : [VBoxManage clonevm](https://docs.oracle.com/en/virtualization/virtualbox/6.0/user/vboxmanage-clonevm.html)
+
 
 ## Liens
 
