@@ -240,5 +240,12 @@ La bonne blague : le playbook que je me suis fait -censuré- à écrire pour ré
 
 ## TODO
 
-* Améliorations Gitea : créer un nombre de comptes utilisateurs
+* Améliorations Gitea :
+
+    * virer passwd hardcodés
+    * créer un nombre de comptes utilisateurs
 * Scripter clonage machine : [VBoxManage clonevm](https://docs.oracle.com/en/virtualization/virtualbox/6.0/user/vboxmanage-clonevm.html)
+
+## Liens
+
+* [ansible: lineinfile for several lines?](https://stackoverflow.com/questions/24334115/ansible-lineinfile-for-several-lines)

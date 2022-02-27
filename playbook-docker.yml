@@ -1,7 +1,7 @@
 ---
 - name: Install Docker
   hosts:
-    - docker
+    - docker_new
   become: true
   tasks:
     - name: Install Docker

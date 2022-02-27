@@ -1,0 +1,23 @@
+# Setup du fichier hosts
+---
+- name: Hosts
+  hosts:
+    - gitea_new
+    - docker_new
+  become: true
+  tasks:
+    - name: Detect gitea hostname in hosts
+      shell: grep gitea /etc/gitea/hosts | wc -l
+      register: gitea_host_present
+    - debug: var=gitea_host_present
+    - name: Create /etc/hosts
+      template:
+        src: tmpl/hosts.j2
+        dest: /etc/hosts
+        owner: root
+        group: root
+        mode: '0644'
+      vars:
+        GITEA_IP: "{{ GITEA_IP }}"
+        DRONE_IP: "{{ DRONE_IP }}"
+      when: gitea_host_present.stdout != '1'
