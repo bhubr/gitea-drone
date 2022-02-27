@@ -12,13 +12,26 @@
       apk:
         name: gitea
         update_cache: yes
-    - name: Create git group
+
+    # TEMPORARY
+    - name: Remove git group
       group:
         name: git
-        state: present
-    - name: Create git user
+        state: absent
+    - name: Remove git user
       user:
         name: git
+        state: absent
+
+
+    # git -> gitea
+    - name: Create gitea group
+      group:
+        name: gitea
+        state: present
+    - name: Create gitea user
+      user:
+        name: gitea
         # Equivalent to --home /home/git
         create_home: yes
         # Equivalent to --shell /bin/bash
@@ -30,13 +43,13 @@
         # Equivalent to --gecos 'Git VC'
         comment: Git Version Control
         # --group
-        groups: git
+        groups: gitea
     - name: Create Gitea var dirs
       file:
         name: "/var/lib/gitea/{{ item }}"
         state: directory
-        owner: git
-        group: git
+        owner: gitea
+        group: gitea
         mode: '0750'
       with_items:
         - custom
@@ -47,7 +60,7 @@
         name: /etc/gitea
         state: directory
         owner: root
-        group: git
+        group: gitea
         mode: '0770'
     - name: Output current date as a variable
       shell: date
@@ -63,7 +76,7 @@
         src: tmpl/app.ini.j2
         dest: /etc/gitea/app.ini
         owner: root
-        group: git
+        group: gitea
         mode: '0640'
       vars:
         GENERATED_AT: "{{ current_date.stdout }}"
