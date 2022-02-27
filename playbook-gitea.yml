@@ -69,7 +69,7 @@
       lineinfile:
         path: /etc/gitea/app.ini
         regexp: '^\[security\]'
-        insertafter: EOF
+        insertafter: '^\[security\]\n'
         line: 'INSERT_LOCK=true'
     - name: Create gitea database
       shell: |
