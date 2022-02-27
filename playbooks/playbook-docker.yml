@@ -85,6 +85,7 @@
         volumes:
           - /opt/drone:/data
         network_mode: host
+        container_default_behavior: no_defaults
     - name: Run Drone Runner in Docker
       docker_container:
         name: drone_runner
@@ -104,3 +105,4 @@
         volumes:
           - /var/run/docker.sock:/var/run/docker.sock
         network_mode: host
+        container_default_behavior: no_defaults
