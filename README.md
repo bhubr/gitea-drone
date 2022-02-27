@@ -234,12 +234,26 @@ sudo rm -rf /etc/gitea /var/lib/gitea /var/log/gitea
 sudo apk del docker
 ```
 
-## Création app OAuth2
+## Changelog
+
+### Gitea playbook
+
+La bonne blague : le playbook que je me suis fait -censuré- à écrire pour résoudre le problème de Gitea 1.15 qui ne s'arrêtait pas normalement&hellip; n'est plus nécessaire si j'active les repos _edge_ d'Alpine, pour installer la 1.16 ! Les `rc-service gitea start` et `rc-service gitea stop` fonctionnent normalement avec cette version, plus la peine de tuer `supervise-daemon` et `gitea` manuellement.
+
+### OAuth2 app playbook
+
+Pour création app OAuth2, afin d'obtenir client ID et secret pour Drone.
 
 Avec login/mdp (OK !)
 
 ```
 curl -XPOST -H "Content-Type: application/json"  -k -d '{ "name": "Drone CI test #1", "redirect_uris": [ "http://drone:8080" ] }' -u root:root1234 http://localhost:3000/api/v1/user/applications/oauth2
+```
+
+Réponse :
+
+```
+{"id":1,"name":"Drone CI test #1","client_id":"455b475e-2110-46a5-bee1-946602c9b1c2","client_secret":"Mafzw8bpDgIEEAWq32tpRVdWZS4JX92JvC23Odmj6W5e","redirect_uris":["http://drone:8080"],"created":"2022-02-27T18:23:11+01:00"}
 ```
 
 Avec internal token (**FAIL**)
@@ -248,13 +262,15 @@ Avec internal token (**FAIL**)
 curl -XPOST -H "Content-Type: application/json" -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYmYiOjE2NDU5Nzk0MzB9.XEXrbclr00-ollasSKWdWMi3OjsQVp6qcdlZNnDOjsc"  -k -d '{ "name": "Drone CI test #2", "redirect_uris": [ "http://drone:8080" ] }' -u root:root1234 http://localhost:3000/api/v1/user/applications/oauth2
 ```
 
+Premier run en l'état (voir [commit](https://github.com/bhubr/gitea-drone/commit/3d3456fc2c62a2dc3773384add110b399d5666f9))
 
-## Changelog
-
-La bonne blague : le playbook que je me suis fait -censuré- à écrire pour résoudre le problème de Gitea 1.15 qui ne s'arrêtait pas normalement&hellip; n'est plus nécessaire si j'active les repos _edge_ d'Alpine, pour installer la 1.16 ! Les `rc-service gitea start` et `rc-service gitea stop` fonctionnent normalement avec cette version, plus la peine de tuer `supervise-daemon` et `gitea` manuellement.
+```
+{"msg": "You need to install \"jmespath\" prior to running json_query filter"}
+```
 
 ## TODO
 
+* Installer `jmespath` sur le contrôleur : `pip3 install jmespath`
 * Améliorations hosts :
 
     * mettre dans l'inventory les noms des machines et le `/etc/hosts` comme sur les autres machines

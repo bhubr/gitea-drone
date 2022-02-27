@@ -16,6 +16,7 @@
         -d '{ "name": "Drone CI test #2", "redirect_uris": [ "http://drone:8080" ] }' \
         -u root:root1234 http://localhost:3000/api/v1/user/applications/oauth2
       register: oauth2_app_response
+    - debug: var=oauth2_app_response
     - debug: msg="{{ oauth2_app_response.json | json_query(jmesquery) }}"
       vars:
         # {
@@ -26,5 +27,5 @@
         #   "redirect_uris": ["http://drone:8080"],
         #   "created": "2022-02-27T18:23:11+01:00"
         # }
-        jmesquery: "[*].{ClientID: client_id, ClientSecret: client_secret}"
+        jmesquery: "[*]"
     - debug: var=jmesquery
