@@ -42,10 +42,6 @@
     # - name: Generate Gitea INTERNAL_TOKEN
     #   shell: gitea generate secret INTERNAL_TOKEN
     #   register: gitea_internal_token
-    # - name: Check if Gitea config file exists
-    #   stat: path=/etc/gitea/app.ini
-    #   ignore_errors: true
-    #   register: gitea_cfg
     # - debug: var=gitea_cfg
     # - name: Create Gitea config file
     #   template:
@@ -59,11 +55,16 @@
     #     LFS_JWT_SECRET: "{{ gitea_lfs_jwt_secret.stdout }}"
     #     INTERNAL_TOKEN: "{{ gitea_internal_token.stdout }}"
     #   when: gitea_cfg.stat.exists == false
+    - name: Check if Gitea SQLite3 database exists
+      stat: path=/var/lib/gitea/db/gitea.db
+      ignore_errors: true
+      register: gitea_db
 
     - name: Create gitea database
       shell: |
-        gitea migrate \
+        sudo -u gitea gitea migrate \
         --config /etc/gitea/app.ini
+      when: gitea_db.stat.exists == false
     # Insert INSTALL_LOCK after migrating DB
     - name: Insert INSTALL_LOCK
       lineinfile:
@@ -80,7 +81,7 @@
     - debug: var=gitea_count_users
     - name: Create gitea admin user
       shell: |
-        gitea admin user create --admin \
+        sudo -u gitea gitea admin user create --admin \
         --username root \
         --password root1234 \
         --email root@gitea.tls
