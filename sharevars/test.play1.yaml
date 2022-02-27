@@ -1,0 +1,10 @@
+---
+- hosts: gitea_new
+  gather_facts: false
+
+  tasks:
+   - name: Register a new value
+     shell: echo "/etc/resolv.conf"
+     register: PLAY1VAR
+
+   - debug: msg="{{PLAY1VAR.stdout}}"
