@@ -4,6 +4,12 @@
     - gitea
   become: true
   tasks:
+    - name: Enable main repo in /etc/apk/repositories
+      lineinfile:
+        dest: /etc/apk/repositories
+        regexp: '^#\s*3\.15\/community.*$'
+        line: 'http://alpine.42.fr/v3.15/community'
+
     - name: Install Bash, Gitea and SQLite
       apk:
         name:
