@@ -39,7 +39,7 @@
         # Equivalent to --system
         system: yes
         # --disabled-password
-        password: false
+        password: '*'
         # Equivalent to --gecos 'Git VC'
         comment: Git Version Control
         # --group
