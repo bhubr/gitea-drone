@@ -4,7 +4,7 @@
     - gitea
   become: true
   tasks:
-    - name: Install Bash
+    - name: Install Bash, Gitea and SQLite
       apk:
         name:
           - bash
@@ -12,6 +12,15 @@
           - sqlite
         update_cache: yes
 
+    - name: Make sure Gitea is NOT started
+      sysvinit:
+        name: gitea
+        state: stopped
+        enabled: yes
+    - name: Check gitea processes
+      shell: ps aux | grep gitea
+      register: gitea_ps_before
+    - debug: var=gitea_ps_before
     # TEMPORARY
     - name: Remove git group
       group:
@@ -106,6 +115,6 @@
       when: gitea_count_users.stdout != '1'
     - name: Make sure Gitea is started
       sysvinit:
-          name: gitea
-          state: started
-          enabled: yes
+        name: gitea
+        state: started
+        enabled: yes
