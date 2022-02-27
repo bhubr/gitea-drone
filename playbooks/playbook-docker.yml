@@ -4,66 +4,65 @@
     - docker_new
   become: true
   tasks:
-   - name: Echo the output - OAUTH2_CLIENT_ID
-     shell: cat {{ hostvars['GITEA_HOST']['OAUTH2_CLIENT_ID'] }} |tail -1
-     register: GITEA_CLIENT_ID
-   - debug: msg="{{GITEA_CLIENT_ID.stdout}}"
-   - name: Echo the output - OAUTH2_CLIENT_SECRET
-     shell: cat {{ hostvars['GITEA_HOST']['OAUTH2_CLIENT_SECRET'] }} |tail -1
-     register: GITEA_CLIENT_SECRET
-   - debug: msg="{{GITEA_CLIENT_SECRET.stdout}}"
-
-    # - name: Install Docker
-    #   apk:
-    #     name:
-    #       - docker
-    #       - docker-compose
-    #     update_cache: yes
-    # - name: Start Docker service
-    #   service:
-    #     name: docker
-    #     state: started
-    # # - name: Create Docker network
-    # #   docker_network:
-    # #     name: drone
-    # - name: Run Drone Server in Docker
-    #   docker_container:
+    - name: Echo the output - OAUTH2_CLIENT_ID
+      shell: echo {{ hostvars['GITEA_HOST']['OAUTH2_CLIENT_ID'] }}
+      register: GITEA_CLIENT_ID
+    - debug: var=GITEA_CLIENT_ID
+    - name: Echo the output - OAUTH2_CLIENT_SECRET
+      shell: echo {{ hostvars['GITEA_HOST']['OAUTH2_CLIENT_SECRET'] }}
+      register: GITEA_CLIENT_SECRET
+    - debug: var=GITEA_CLIENT_SECRET.stdout
+    - name: Install Docker
+      apk:
+        name:
+          - docker
+          - docker-compose
+        update_cache: yes
+    - name: Start Docker service
+      service:
+        name: docker
+        state: started
+    # - name: Create Docker network
+    #   docker_network:
     #     name: drone
-    #     state: started
-    #     image: drone/drone:2
-    #     exposed_ports:
-    #       - 80
-    #     env:
-    #       DRONE_GITEA_SERVER=http://gitea:3000
-    #       DRONE_GITEA_CLIENT_ID=abc
-    #       DRONE_GITEA_CLIENT_SECRET=cde
-    #       DRONE_RPC_SECRET=secret
-    #       DRONE_SERVER_HOST=drone
-    #       DRONE_SERVER_PROTO=http
-    #     restart_policy: always
-    #     volumes:
-    #       - /opt/drone:/data
-    #     network_mode: host
-    #     # networks:
-    #     #   - name: drone
-    # - name: Run Drone Runner in Docker
-    #   docker_container:
-    #     name: drone_runner
-    #     state: started
-    #     image: drone/drone-runner-docker:1
-    #     exposed_ports:
-    #       - 3300
-    #     env:
-    #       DRONE_RPC_PROTO=http
-    #       DRONE_RPC_HOST=drone
-    #       DRONE_RPC_SECRET=secret
-    #       DRONE_RUNNER_CAPACITY=2
-    #       DRONE_RUNNER_NAME=my-runner
-    #       DRONE_UI_USERNAME=root
-    #       DRONE_UI_PASSWORD=root
-    #     restart_policy: always
-    #     volumes:
-    #       - /var/run/docker.sock:/var/run/docker.sock
-    #     network_mode: host
-    #     # networks:
-    #     #   - name: drone
+    - name: Run Drone Server in Docker
+      docker_container:
+        name: drone
+        state: started
+        image: drone/drone:2
+        exposed_ports:
+          - 80
+        env:
+          DRONE_GITEA_SERVER=http://gitea:3000
+          DRONE_GITEA_CLIENT_ID={{ GITEA_CLIENT_ID.stdout }}
+          DRONE_GITEA_CLIENT_SECRET={{ GITEA_CLIENT_SECRET.stdout }}
+          DRONE_RPC_SECRET=secret
+          DRONE_SERVER_HOST=drone
+          DRONE_SERVER_PROTO=http
+        restart_policy: always
+        volumes:
+          - /opt/drone:/data
+        network_mode: host
+        # networks:
+        #   - name: drone
+    - name: Run Drone Runner in Docker
+      docker_container:
+        name: drone_runner
+        state: started
+        image: drone/drone-runner-docker:1
+        exposed_ports:
+          - 3300
+        env:
+          DRONE_RPC_PROTO=http
+          DRONE_RPC_HOST=drone
+          DRONE_RPC_SECRET=secret
+          DRONE_RUNNER_CAPACITY=2
+          DRONE_RUNNER_NAME=my-runner
+          DRONE_UI_USERNAME=root
+          DRONE_UI_PASSWORD=root
+        restart_policy: always
+        volumes:
+          - /var/run/docker.sock:/var/run/docker.sock
+        network_mode: host
+        # networks:
+        #   - name: drone
