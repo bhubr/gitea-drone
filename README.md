@@ -139,11 +139,30 @@ ssh -i ~/.ssh/id_ecdsa_alpine_ipi -p 4099 alpine@localhost
 
 > **VM exportée à ce stade sous le nom `AlpineBaseStep01.ova`** (57 Mo)
 
+**Suite à "step01"**, il reste :
+
 Reste :
 
 * Bash
 * Python3 (pour Ansible)
 * Inet static
+* Prompt coloré
+* **Hostnames distincts**
+
+### IP statique
+
+Ajouter à `/etc/network/interfaces` (changer l'IP éventuellement)
+
+```
+auto eth1
+iface eth1 inet static
+  address 192.168.56.23
+  netmask 255.255.255.0
+```
+
+### Copie de la clé de base de la VM vers le clone
+
+Vu que ce sont des clones, ne suffisait-il pas (par hasard ?) de copier la clé publique déjà présente dans la VM, dans `authorized_keys` ?
 
 ### Installation de bash et nano
 

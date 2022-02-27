@@ -1,0 +1,8 @@
+---
+- name: Ping
+  hosts:
+    - gitea_new
+  become: true
+  tasks:
+    - name: Ping new Alpine host
+      ping:
