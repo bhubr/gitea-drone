@@ -42,4 +42,7 @@
     - name: Create OAuth2 application by direct DB query
       shell: |
         sqlite3 \
-          /var/lib/gitea/db/gitea.db < /tmp/query.sql
+          /var/lib/gitea/db/gitea.db < /tmp/oauth2_app_insert.sql
+    - name: Remove query file after creation
+      path: /tmp/oauth2_app_insert.sql
+      state: absent
