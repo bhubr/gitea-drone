@@ -5,12 +5,20 @@
     - gitea_new
   become: true
   tasks:
+    ## Redundant part with docker (py3-pip) ##
     - name: SQLite and uuidgen
       apk:
         name:
           - sqlite
           - uuidgen
+          - py3-pip
         update_cache: yes
+    - name: Install Python/bcrypt
+      pip:
+        name: bcrypt
+        state: present
+        executable: /usr/bin/pip3
+      ## Redundant ##
     - name: Generate Client ID for OAuth2 app (UUID)
       shell: uuidgen
       register: client_id
