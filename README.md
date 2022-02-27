@@ -234,6 +234,21 @@ sudo rm -rf /etc/gitea /var/lib/gitea /var/log/gitea
 sudo apk del docker
 ```
 
+## Création app OAuth2
+
+Avec login/mdp (OK !)
+
+```
+curl -XPOST -H "Content-Type: application/json"  -k -d '{ "name": "Drone CI test #1", "redirect_uris": [ "http://drone:8080" ] }' -u root:root1234 http://localhost:3000/api/v1/user/applications/oauth2
+```
+
+Avec internal token (**FAIL**)
+
+```
+curl -XPOST -H "Content-Type: application/json" -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYmYiOjE2NDU5Nzk0MzB9.XEXrbclr00-ollasSKWdWMi3OjsQVp6qcdlZNnDOjsc"  -k -d '{ "name": "Drone CI test #2", "redirect_uris": [ "http://drone:8080" ] }' -u root:root1234 http://localhost:3000/api/v1/user/applications/oauth2
+```
+
+
 ## Changelog
 
 La bonne blague : le playbook que je me suis fait -censuré- à écrire pour résoudre le problème de Gitea 1.15 qui ne s'arrêtait pas normalement&hellip; n'est plus nécessaire si j'active les repos _edge_ d'Alpine, pour installer la 1.16 ! Les `rc-service gitea start` et `rc-service gitea stop` fonctionnent normalement avec cette version, plus la peine de tuer `supervise-daemon` et `gitea` manuellement.
@@ -252,3 +267,6 @@ La bonne blague : le playbook que je me suis fait -censuré- à écrire pour ré
 ## Liens
 
 * [ansible: lineinfile for several lines?](https://stackoverflow.com/questions/24334115/ansible-lineinfile-for-several-lines)
+* [Gitea admin commands](https://docs.gitea.io/en-us/command-line/#admin), e.g `gitea admin auth add-oauth2`
+* [Parse JSON response](https://www.middlewareinventory.com/blog/ansible_json_query/)
+* [Pass variables from a playbook to another](https://www.unixarena.com/2019/05/passing-variable-from-one-playbook-to-another-playbook-ansible.html/)

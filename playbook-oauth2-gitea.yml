@@ -1,0 +1,30 @@
+# Playbook pour création app OAuth2 Gitea
+---
+- name: OAuth2 Gitea
+  hosts:
+    - gitea_new
+  become: true
+  tasks:
+    # Activation des dépôts "edge" (dernières versions des
+    # packages) de Linux Alpine, et désactivation des dépôts
+    # "normaux" (ceux d'Alpine v3.15 ici).
+    # Ceci pour résoudre un problème avec la gestion du service
+    # Gitea, qui est résolu dans la dernière version.
+    - name: Create OAuth2 application
+      shell: |
+        curl -XPOST -H "Content-Type: application/json"  -k \
+        -d '{ "name": "Drone CI test #2", "redirect_uris": [ "http://drone:8080" ] }' \
+        -u root:root1234 http://localhost:3000/api/v1/user/applications/oauth2
+      register: oauth2_app_response
+    - debug: msg="{{ oauth2_app_response.json | json_query(jmesquery) }}"
+      vars:
+        # {
+        #   "id": 1,
+        #   "name": "Drone CI test #1",
+        #   "client_id": "455b475e-2110-46a5-bee1-946602c9b1c2",
+        #   "client_secret": "Mafzw8bpDgIEEAWq32tpRVdWZS4JX92JvC23Odmj6W5e",
+        #   "redirect_uris": ["http://drone:8080"],
+        #   "created": "2022-02-27T18:23:11+01:00"
+        # }
+        jmesquery: "[*].{ClientID: client_id, ClientSecret: client_secret}"
+    - debug: var=jmesquery
