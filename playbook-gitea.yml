@@ -49,3 +49,19 @@
         owner: root
         group: git
         mode: '0770'
+    - name: Generate Gitea LFS_JWT_SECRET
+      shell: gitea generate secret LFS_JWT_SECRET
+      register: gitea_lfs_jwt_secret
+    - name: Generate Gitea INTERNAL_TOKEN
+      shell: gitea generate secret INTERNAL_TOKEN
+      register: gitea_internal_token
+    - name: Create Gitea config file
+      template:
+        src: tmpl/app.ini.j2
+        dest: /etc/gitea/app.ini
+        owner: root
+        group: git
+        mode: '0640'
+      vars:
+        LFS_JWT_SECRET: "{{ gitea_lfs_jwt_secret.stdout }}"
+        INTERNAL_TOKEN: "{{ gitea_internal_token.stdout }}"
