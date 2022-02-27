@@ -84,7 +84,7 @@
     #     line: 'INSTALL_LOCK=true'
     
     - name: Detect INSTALL_LOCK to check if we need installing
-      command: grep INSTALL_LOCK /etc/gitea/app.ini | wc -l
+      shell: grep INSTALL_LOCK /etc/gitea/app.ini | wc -l
       register: gitea_lock_present
     - debug: var=gitea_lock_present
     # Ces deux variables sont respectivement une clé secrète et un token
@@ -95,9 +95,11 @@
     - name: Generate Gitea LFS_JWT_SECRET
       shell: gitea generate secret LFS_JWT_SECRET
       register: gitea_lfs_jwt_secret
+      when: gitea_lock_present.stdout != '1'
     - name: Generate Gitea INTERNAL_TOKEN
       shell: gitea generate secret INTERNAL_TOKEN
       register: gitea_internal_token
+      when: gitea_lock_present.stdout != '1'
     # Gitea doit écrire dans ce fichier au moment de l'installation.
     # Puis le fichier peut être mis en lecture seule. La doc recommande 0640
     # mais 0600 (lecture/écriture par root uniquement) est appliqué par
@@ -112,6 +114,7 @@
       vars:
         LFS_JWT_SECRET: "{{ gitea_lfs_jwt_secret.stdout }}"
         INTERNAL_TOKEN: "{{ gitea_internal_token.stdout }}"
+      when: gitea_lock_present.stdout != '1'
     # Gitea, bien qu'on y accède principalement via l'interface web,
     # offre des commandes administratives en ligne de commande.
     # Celle-ci permet de lister les utilisateurs. On élimine la ligne
