@@ -1,9 +1,12 @@
-# Playbook modifié pour Gitea 1.16
+# Playbook modifié pour Gitea 1.16 sur Linux Alpine 3.15
 ---
 - name: Gitea
   hosts:
     - gitea_new
   become: true
+  vars:
+    PUBLIC_URL: http://localhost:3031/
+    # PUBLIC_URL: http://gitea:3000/
   tasks:
     - name: Disable 3.15/main repo in /etc/apk/repositories
       lineinfile:
@@ -26,13 +29,13 @@
         state: present
         backrefs: yes
 
-    # # Ansible peut rencontrer des problèmes s'il ne peut
-    # # utiliser un shell Bash sur les "managed hosts"
-    # # En plus de Bash, on installe Gitea (forge logicielle)
-    # # et SQLite (Gitea peut s'en passer car il intègre
-    # # dans son fichier exécutable la bibliothèque SQLite,
-    # # mais on utilisera ce dernier pour vérifier des choses
-    # # dans la base de données)
+    # Ansible peut rencontrer des problèmes s'il ne peut
+    # utiliser un shell Bash sur les "managed hosts"
+    # En plus de Bash, on installe Gitea (forge logicielle)
+    # et SQLite (Gitea peut s'en passer car il intègre
+    # dans son fichier exécutable la bibliothèque SQLite,
+    # mais on utilisera ce dernier pour vérifier des choses
+    # dans la base de données)
     - name: Install Bash, Gitea and SQLite
       apk:
         name:
@@ -40,43 +43,77 @@
           - gitea
           # - sqlite
         update_cache: yes
-    # # Le service doit être stoppé (state=stopped)
-    # # avant d'effectuer des modifications,
-    # # mais sera démarré au reboot (enabled=yes)
+    # Le service doit être stoppé (state=stopped)
+    # avant d'effectuer des modifications,
+    # mais sera démarré au reboot (enabled=yes)
     - name: Make sure Gitea is NOT started
       service:
         name: gitea
         state: stopped
         enabled: yes
-    # # Gitea utilise une base de données SQLite3, laquelle
-    # # est entièrement contenue dans un simple fichier
-    # # (gitea.db). On vérifie si le fichier existe avec stat,
-    # # et enregistre le résultat comme variable.
+    # Gitea utilise une base de données SQLite3, laquelle
+    # est entièrement contenue dans un simple fichier
+    # (gitea.db). On vérifie si le fichier existe avec stat,
+    # et enregistre le résultat comme variable.
     - name: Check if Gitea SQLite3 database exists
       stat: path=/var/lib/gitea/db/gitea.db
       ignore_errors: true
       register: gitea_db
-    # # Utilisation du when pour ne créer la BDD que si
-    # # elle n'existe pas encore
+    # Utilisation du when pour ne créer la BDD que si
+    # elle n'existe pas encore
     - name: Create gitea database
       shell: |
         sudo -u gitea gitea migrate \
         --config /etc/gitea/app.ini
       when: gitea_db.stat.exists == false
-    # # Gitea stocke sa configuration dans le fichier app.ini
-    # # Lorsqu'on l'installe "normalement" (de façon non-automatisée),
-    # # on doit valider les paramètres via une page web.
-    # # Insérer la ligne INSTALL_LOCK=true, si elle n'existe pas,
-    # # permet de passer cette étape.
-    - name: Insert INSTALL_LOCK to bypass web-based install
-      lineinfile:
-        path: /etc/gitea/app.ini
-        regexp: '^INSTALL_LOCK'
-        insertafter: '^INTERNAL_TOKEN.*'
-        line: 'INSTALL_LOCK=true'
-    # # Ici, on exécute directement une requête SQL en ligne
-    # # de commande, sur la BDD contenue dans gitea.db,
-    # # afin de récupérer le nombre d'utilisateurs existants.
+    # Gitea stocke sa configuration dans le fichier app.ini
+    # Lorsqu'on l'installe "normalement" (de façon non-automatisée),
+    # on doit valider les paramètres via une page web.
+    # Insérer la ligne INSTALL_LOCK=true, si elle n'existe pas,
+    # permet de passer cette étape.
+    # UPDATE: cette ligne a finalement été désactivée : en effet,
+    # après validation de l'installation, Gitea modifie lourdement
+    # ce fichier, ce qui rend la modification ligne par ligne fastidieuse.
+    # On a donc remplacé ce procédé par l'utilisation d'un template
+    # contenant directement toutes les informations nécessaires
+    # - name: Insert INSTALL_LOCK to bypass web-based install
+    #   lineinfile:
+    #     path: /etc/gitea/app.ini
+    #     regexp: '^INSTALL_LOCK'
+    #     insertafter: '^INTERNAL_TOKEN.*'
+    #     line: 'INSTALL_LOCK=true'
+    
+    # Ces deux variables sont respectivement une clé secrète et un token
+    # qu'on génère préalablement, avant de les insérer comme variables dans le template.
+    # En plus de ces deux variables, la PUBLIC_URL définie dans la section vars en haut
+    # du fichier permettra de définir par quelle URL Gitea est accessible depuis l'extérieur
+    # de la machine virtuelle.
+    - name: Generate Gitea LFS_JWT_SECRET
+      shell: gitea generate secret LFS_JWT_SECRET
+      register: gitea_lfs_jwt_secret
+    - name: Generate Gitea INTERNAL_TOKEN
+      shell: gitea generate secret INTERNAL_TOKEN
+      register: gitea_internal_token
+    # Gitea doit écrire dans ce fichier au moment de l'installation.
+    # Puis le fichier peut être mis en lecture seule. La doc recommande 0640
+    # mais 0600 (lecture/écriture par root uniquement) est appliqué par
+    # défaut par ce package gitea pour Alpine.
+    - name: Create Gitea config file
+      template:
+        src: tmpl/app.ini.j2
+        dest: /etc/gitea/app.ini
+        owner: root
+        group: www-data
+        mode: '0600'
+      vars:
+        LFS_JWT_SECRET: "{{ gitea_lfs_jwt_secret.stdout }}"
+        INTERNAL_TOKEN: "{{ gitea_internal_token.stdout }}"
+    # Gitea, bien qu'on y accède principalement via l'interface web,
+    # offre des commandes administratives en ligne de commande.
+    # Celle-ci permet de lister les utilisateurs. On élimine la ligne
+    # d'en-tête (identifiée par la présence d'un champ "IsAdmin")
+    # et on pipe le tout vers wc -l pour compter les lignes correspondant
+    # réellement à des utilisateurs enregistrés.
     - name: List Gitea users
       shell: sudo -u gitea gitea admin user list | grep -v IsAdmin | wc -l
       register: gitea_count_users
