@@ -6,11 +6,10 @@
   tasks:
     - name: Install Bash
       apk:
-        name: bash
-        update_cache: yes
-    - name: Install Gitea
-      apk:
-        name: gitea
+        name:
+          - bash
+          - gitea
+          - sqlite
         update_cache: yes
 
     # TEMPORARY
@@ -22,7 +21,6 @@
       user:
         name: git
         state: absent
-
 
     # git -> gitea
     - name: Create gitea group
@@ -86,12 +84,19 @@
       shell: |
         gitea migrate \
         --config /etc/gitea/app.ini
+    - name: Check that admin user exists
+      shell: |
+        sqlite3 \
+          /var/lib/gitea/db/gitea.db \
+          'select * from user;' \ | awk -F '|' '{ print $2 }'
+      register: gitea_count_users
     - name: Create gitea admin user
       shell: |
         gitea admin user create --admin \
         --username root \
         --password root1234 \
         --email root@gitea.tls
+      when: gitea_count_users.stdout != '
     - name: Make sure Gitea is started
       sysvinit:
           name: gitea
