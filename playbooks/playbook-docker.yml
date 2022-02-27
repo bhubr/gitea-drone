@@ -47,6 +47,10 @@
     # - name: Create Docker network
     #   docker_network:
     #     name: drone
+    - name: Install Python requests library
+      pip:
+        name: requests
+        state: present
     - name: Run Drone Server in Docker
       docker_container:
         name: drone
