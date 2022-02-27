@@ -1,0 +1,10 @@
+---
+- hosts: docker_new
+  gather_facts: false
+
+  tasks:
+   - name: Echo the output - PLAY1 variable vaule
+     shell: cat {{ hostvars['DUMMY_HOST']['PLAY1VAR_NEW'] }} |tail -1
+     register: PLAY2_RESULTS
+
+   - debug: msg="{{PLAY2_RESULTS.stdout}}"
