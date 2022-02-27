@@ -252,8 +252,15 @@ curl -XPOST -H "Content-Type: application/json"  -k -d '{ "name": "Drone CI test
 
 Réponse :
 
-```
-{"id":1,"name":"Drone CI test #1","client_id":"455b475e-2110-46a5-bee1-946602c9b1c2","client_secret":"Mafzw8bpDgIEEAWq32tpRVdWZS4JX92JvC23Odmj6W5e","redirect_uris":["http://drone:8080"],"created":"2022-02-27T18:23:11+01:00"}
+```json
+{
+  "id": 1,
+  "name": "Drone CI test #1",
+  "client_id": "455b475e-2110-46a5-bee1-946602c9b1c2",
+  "client_secret": "Mafzw8bpDgIEEAWq32tpRVdWZS4JX92JvC23Odmj6W5e",
+  "redirect_uris": ["http://drone:8080"],
+  "created": "2022-02-27T18:23:11+01:00"
+}
 ```
 
 Avec internal token (**FAIL**)
@@ -268,8 +275,84 @@ Premier run en l'état (voir [commit](https://github.com/bhubr/gitea-drone/commi
 {"msg": "You need to install \"jmespath\" prior to running json_query filter"}
 ```
 
+Autre approche : chiffrer secret avec Bcrypt et injecter dans la BDD.
+
+Schéma table `oauth2_application`
+
+```
+CREATE TABLE `oauth2_application`
+(
+  `id`  INTEGER PRIMARY KEY autoincrement NOT NULL ,
+  `uid` INTEGER NULL ,
+  `name` text NULL ,
+  `client_id` text NULL ,
+  `client_secret` text NULL ,
+  `redirect_uris` text NULL ,
+  `created_unix` INTEGER NULL ,
+  `updated_unix` INTEGER NULL
+);
+```
+
+Query
+
+```
+INSERT INTO `oauth2_application`
+(
+  `uid`,
+  `name`,
+  `client_id`,
+  `client_secret`,
+  `redirect_uris`,
+  `created_unix`,
+  `updated_unix`
+)
+VALUES(
+  1,
+  '{{ OAUTH2_APP_NAME }}',
+  '{{ OAUTH2_CLIENT_ID }}',
+  '{{ OAUTH2_CLIENT_SECRET }}',
+  '"http://drone:8080"',
+  unixepoch(),
+  unixepoch()
+)
+;
+```
+
+
+
+```
+INSERT INTO `oauth2_application`
+(
+  `uid`,
+  `name`,
+  `client_id`,
+  `client_secret`,
+  `redirect_uris`,
+  `created_unix`,
+  `updated_unix`
+)
+VALUES(
+  1,
+  'Super Duper App',
+  '46d94b80-f9e7-46d0-9707-299f8bda08b4',
+  '$2a$12$K4uvXR8J87pydR0quTpJn.oIJd2OQz.VHTvLiuWwR4FEWM9O1ePYS',
+  '"http://drone:8080"',
+  1645988011,
+  1645988011
+)
+;
+```
+
+* UUID généré via `uuidgen` ou Python ?
+* secret via `openssl rand -hex 22` puis hash
+* bcrypt hash via python
+
+python3 -c 'import crypt;print(crypt.crypt(pw)'
+
+
 ## TODO
 
+* Change default shell sur VMs Alpine : <https://wiki.alpinelinux.org/wiki/Change_default_shell#:~:text=Note%3A%20By%20default%20Alpine%20Linux,zsh%2C%20fish%20or%20another%20shell.&text=Now%20enter%20the%20path%20for,enter%20to%20confirm%20this%20change.>
 * Installer `jmespath` sur le contrôleur : `pip3 install jmespath`
 * Améliorations hosts :
 
@@ -286,3 +369,5 @@ Premier run en l'état (voir [commit](https://github.com/bhubr/gitea-drone/commi
 * [Gitea admin commands](https://docs.gitea.io/en-us/command-line/#admin), e.g `gitea admin auth add-oauth2`
 * [Parse JSON response](https://www.middlewareinventory.com/blog/ansible_json_query/)
 * [Pass variables from a playbook to another](https://www.unixarena.com/2019/05/passing-variable-from-one-playbook-to-another-playbook-ansible.html/)
+* [SQLite date/time functions](https://www.sqlite.org/lang_datefunc.html) pour `unixepoch()`
+* [How To Generate Linux User Encrypted Password for Ansible](https://computingforgeeks.com/generate-linux-user-encrypted-password-for-ansible/)

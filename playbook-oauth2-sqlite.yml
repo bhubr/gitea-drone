@@ -1,0 +1,45 @@
+# Playbook pour création app OAuth2 Gitea
+---
+- name: OAuth2 Gitea
+  hosts:
+    - gitea_new
+  become: true
+  tasks:
+    - name: SQLite and uuidgen
+      apk:
+        name:
+          - sqlite
+          - uuidgen
+        update_cache: yes
+    - name: Generate Client ID for OAuth2 app (UUID)
+      shell: uuidgen
+      register: client_id
+    - debug: var=client_id
+    - name: Generate Client Secret for OAuth2 app (44-char)
+      shell: openssl rand -hex 22
+      register: client_secret
+    - debug: var=client_secret
+    - name: Generate hashed Secret with Bcrypt
+      shell: python3 -c "import crypt;print(crypt.crypt('{{ client_secret.stdout }}'))"
+      register: client_secret_hashed
+    - debug: var=client_secret_hashed
+    - name: Generate Unix timestamp
+      shell: date +%s
+      register: current_timestamp
+    - debug: var=current_timestamp
+    - name: Create query file
+      template:
+        src: tmpl/oauth2_app_insert.sql.j2
+        dest: /tmp/oauth2_app_insert.sql
+        owner: root
+        group: root
+        mode: '0400'
+      vars:
+        OAUTH2_APP_NAME: "My Super App 000"
+        OAUTH2_CLIENT_ID: "{{ client_id.stdout }}"
+        OAUTH2_CLIENT_SECRET_HASHED: "{{ client_secret_hashed.stdout }}"
+        TIMESTAMP: "{{ current_timestamp.stdout }}"
+    - name: Create OAuth2 application by direct DB query
+      shell: |
+        sqlite3 \
+          /var/lib/gitea/db/gitea.db < /tmp/query.sql

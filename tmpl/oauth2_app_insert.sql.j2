@@ -1,0 +1,20 @@
+INSERT INTO `oauth2_application`
+(
+  `uid`,
+  `name`,
+  `client_id`,
+  `client_secret`,
+  `redirect_uris`,
+  `created_unix`,
+  `updated_unix`
+)
+VALUES(
+  1,
+  '{{ OAUTH2_APP_NAME }}',
+  '{{ OAUTH2_CLIENT_ID }}',
+  '{{ OAUTH2_CLIENT_SECRET_HASHED }}',
+  '"http://drone:8080"',
+  {{ TIMESTAMP }},
+  {{ TIMESTAMP }}
+)
+;
