@@ -98,8 +98,89 @@ docker run \
 
 ## Conclusion
 
-It works!
+## Setup sur Alpine
+
+### Setup initial Alpine
+
+Installation `sudo`
+
+```
+apk update
+apk add sudo
+```
+
+Ajout user `alpine`
+
+```
+adduser alpine
+addgroup alpine wheel
+echo '%wheel ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/wheel
+```
+
+### Génération et transfert des clés SSH
+
+```
+ssh-keygen -t ecdsa
+```
+
+Pas de passphrase, sauvegarder sous `~/.ssh/ssh-keygen -t ecdsa`
+
+```
+ssh-copy-id -i ~/.ssh/id_ecdsa_alpine_ipi.pub -p 4099 alpine@localhost
+```
+
+Puis login passwordless :
+
+```
+ssh -i ~/.ssh/id_ecdsa_alpine_ipi -p 4099 alpine@localhost
+```
+
+> **VM exportée à ce stade sous le nom `AlpineBaseStep01.ova`** (57 Mo)
+
+**Suite à "step01"**, il reste :
+
+Reste :
+
+* [ ] Bash
+* [x] Python3 (pour Ansible)
+* [x] Inet static
+* [ ] **Désactiver** inet static temporairement
+* [ ] Prompt coloré
+* [ ] **Hostnames distincts**
+* [x] Clé pub contrôleur Ansible à transférer vers clone
+
+### IP statique
+
+Ajouter à `/etc/network/interfaces` (changer l'IP éventuellement)
+
+```
+auto eth1
+iface eth1 inet static
+  address 192.168.56.23
+  netmask 255.255.255.0
+```
+
+### Copie de la clé de base de la VM vers le clone
+
+Vu que ce sont des clones, ne suffisait-il pas (par hasard ?) de copier la clé publique déjà présente dans la VM, dans `authorized_keys` ?
+
+Du contrôleur
+
+```
+ssh-copy-id -i .ssh/id_ecdsa.pub 192.168.56.23
+```
+
+> **VM exportée à ce stade sous le nom `AlpineBaseStep02.ova`** (73 Mo)
+
+### Installation de bash et nano
+
+### Lancer manuellement le supervise daemon
 
 ```
 supervise-daemon gitea --start --pidfile /run/gitea.pid --user gitea --env GITEA_WORK_DIR=/var/lib/gitea --chdir /var/lib/gitea --stdout /var/log/gitea/http.log --stderr /var/log/gitea/http.log /usr/bin/gitea -- web --config /etc/gitea/app.ini
 ```
+
+
+## TODO
+
+* Scripter clonage machine : [VBoxManage clonevm](https://docs.oracle.com/en/virtualization/virtualbox/6.0/user/vboxmanage-clonevm.html)
