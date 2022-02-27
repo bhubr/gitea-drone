@@ -99,3 +99,7 @@ docker run \
 ## Conclusion
 
 It works!
+
+```
+supervise-daemon gitea --start --pidfile /run/gitea.pid --user gitea --env GITEA_WORK_DIR=/var/lib/gitea --chdir /var/lib/gitea --stdout /var/log/gitea/http.log --stderr /var/log/gitea/http.log /usr/bin/gitea -- web --config /etc/gitea/app.ini
+```

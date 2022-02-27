@@ -18,21 +18,28 @@
           - sqlite
         update_cache: yes
 
-    # - name: Make sure Gitea is NOT started
-    #   sysvinit:
-    #     name: gitea
-    #     state: stopped
-    #     enabled: yes
-    - name: Check gitea processes
-      shell: ps aux | grep 'supervise-daemon gitea'
-      register: gitea_daemon
-    - debug: var=gitea_daemon
-    # - name: Kill Gitea
-    #   shell: |
-    #     start-stop-daemon \
-    #       --signal KILL
-    #       --pidfile /run/gitea.pid 
-    #   when: 
+    - name: Make sure Gitea is NOT started
+      sysvinit:
+        name: gitea
+        state: stopped
+        enabled: yes
+    - name: Check gitea daemon
+      shell: ps a | grep 'supervise-daemon gitea' | head -n 1
+      register: gitea_daemon_status
+    - debug: var=gitea_daemon_status
+    - name: Kill Gitea Daemon
+      shell: |
+        start-stop-daemon \
+          --signal KILL \
+          --pidfile /run/gitea.pid
+      when: gitea_daemon_status.stdout.find('GITEA_WORK_DIR') != -1
+    - name: Check gitea instance
+      shell: ps a | grep 'gitea web' | head -n 1
+      register: gitea_instance
+    - debug: var=gitea_instance
+    - name: Kill Gitea instance
+      shell: killall gitea
+      when: gitea_instance.stdout.find('app.ini') != -1
     # - name: Output current date as a variable
     #   shell: date
     #   register: current_date
@@ -86,8 +93,8 @@
         --password root1234 \
         --email root@gitea.tls
       when: gitea_count_users.stdout != '1'
-    # - name: Make sure Gitea is started
-    #   sysvinit:
-    #     name: gitea
-    #     state: started
-    #     enabled: yes
+    - name: Make sure Gitea is started
+      sysvinit:
+        name: gitea
+        state: started
+        enabled: yes
