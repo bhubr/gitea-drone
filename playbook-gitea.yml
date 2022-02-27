@@ -83,6 +83,10 @@
     #     insertafter: '^INTERNAL_TOKEN.*'
     #     line: 'INSTALL_LOCK=true'
     
+    - name: Detect INSTALL_LOCK to check if we need installing
+      command: grep INSTALL_LOCK /etc/gitea/app.ini | wc -l
+      register: gitea_lock_present
+    - debug: var=gitea_lock_present
     # Ces deux variables sont respectivement une clé secrète et un token
     # qu'on génère préalablement, avant de les insérer comme variables dans le template.
     # En plus de ces deux variables, la PUBLIC_URL définie dans la section vars en haut
