@@ -143,11 +143,13 @@ ssh -i ~/.ssh/id_ecdsa_alpine_ipi -p 4099 alpine@localhost
 
 Reste :
 
-* Bash
-* Python3 (pour Ansible)
-* Inet static
-* Prompt coloré
-* **Hostnames distincts**
+* [ ] Bash
+* [x] Python3 (pour Ansible)
+* [x] Inet static
+* [ ] **Désactiver** inet static temporairement
+* [ ] Prompt coloré
+* [ ] **Hostnames distincts**
+* [x] Clé pub contrôleur Ansible à transférer vers clone
 
 ### IP statique
 
@@ -163,6 +165,14 @@ iface eth1 inet static
 ### Copie de la clé de base de la VM vers le clone
 
 Vu que ce sont des clones, ne suffisait-il pas (par hasard ?) de copier la clé publique déjà présente dans la VM, dans `authorized_keys` ?
+
+Du contrôleur
+
+```
+ssh-copy-id -i .ssh/id_ecdsa.pub 192.168.56.23
+```
+
+> **VM exportée à ce stade sous le nom `AlpineBaseStep02.ova`** (73 Mo)
 
 ### Installation de bash et nano
 
