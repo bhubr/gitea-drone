@@ -84,9 +84,9 @@
         INTERNAL_TOKEN: "{{ gitea_internal_token.stdout }}"
     - name: Create gitea admin user
       shell: |
-        gitea admin user create --admin
-        --username root
-        --password root1234
+        gitea admin user create --admin \
+        --username root \
+        --password root1234 \
         --email root@gitea.tls
     - name: Make sure Gitea is started
       sysvinit:
