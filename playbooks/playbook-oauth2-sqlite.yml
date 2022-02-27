@@ -47,3 +47,9 @@
       file:
         path: /tmp/oauth2_app_insert.sql
         state: absent
+    # For sharing variables: http://bit.do/ansible-pass-vars
+    - name: Register dummy host with variable
+      add_host:
+        name: "GITEA_HOST"
+        OAUTH2_CLIENT_ID: " {{ client_id.stdout }}"
+        OAUTH2_CLIENT_SECRET: " {{ client_secret.stdout }}"
