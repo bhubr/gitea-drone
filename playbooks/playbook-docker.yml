@@ -48,11 +48,17 @@
       apk:
         name: py3-pip
         state: present
+    # - name: Update python3
+    #   shell: apk add --update --no-cache python3
     - name: Create symbolic link from python3 to python
       file:
         src: /usr/bin/python3
         dest: /usr/bin/python
         state: link
+    - name: Run ensurepip
+      shell: python3 -m ensurepip
+    - name: Install setuptools by hand
+      shell: pip3 install --no-cache --upgrade pip setuptools
     - name: Install Python dependencies
       pip:
         name:
