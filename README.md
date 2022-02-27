@@ -202,6 +202,10 @@ Ou plus simplement :
 killall gitea
 ```
 
+## Changelog
+
+La bonne blague : le playbook que je me suis fait -censuré- à écrire pour résoudre le problème de Gitea 1.15 qui ne s'arrêtait pas normalement&hellip; n'est plus nécessaire si j'active les repos _edge_ d'Alpine, pour installer la 1.16 ! Les `rc-service gitea start` et `rc-service gitea stop` fonctionnent normalement avec cette version, plus la peine de tuer `supervise-daemon` et `gitea` manuellement.
+
 ## TODO
 
 * Scripter clonage machine : [VBoxManage clonevm](https://docs.oracle.com/en/virtualization/virtualbox/6.0/user/vboxmanage-clonevm.html)
