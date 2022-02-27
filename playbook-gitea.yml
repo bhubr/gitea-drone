@@ -1,84 +1,100 @@
 ---
 - name: Gitea
   hosts:
-    - gitea
+    - gitea_new
   become: true
   tasks:
-    - name: Install Bash
+    - name: Enable main repo in /etc/apk/repositories
+      lineinfile:
+        dest: /etc/apk/repositories
+        regexp: '^#\s*3\.15\/community.*$'
+        line: 'http://alpine.42.fr/v3.15/community'
+
+    - name: Install Bash, Gitea and SQLite
       apk:
-        name: bash
+        name:
+          - bash
+          - gitea
+          - sqlite
         update_cache: yes
-    - name: Install Gitea
-      apk:
-        name: gitea
-        update_cache: yes
 
-    # TEMPORARY
-    - name: Remove git group
-      group:
-        name: git
-        state: absent
-    - name: Remove git user
-      user:
-        name: git
-        state: absent
-
-
-    # git -> gitea
-    - name: Create gitea group
-      group:
+    - name: Make sure Gitea is NOT started
+      sysvinit:
         name: gitea
-        state: present
-    - name: Create gitea user
-      user:
+        state: stopped
+        enabled: yes
+    - name: Check gitea daemon
+      shell: ps a | grep 'supervise-daemon gitea' | head -n 1
+      register: gitea_daemon_status
+    - debug: var=gitea_daemon_status
+    - name: Kill Gitea Daemon
+      shell: |
+        start-stop-daemon \
+          --signal KILL \
+          --pidfile /run/gitea.pid
+      when: gitea_daemon_status.stdout.find('GITEA_WORK_DIR') != -1
+    - name: Check gitea instance
+      shell: ps a | grep 'gitea web' | head -n 1
+      register: gitea_instance
+    - debug: var=gitea_instance
+    - name: Kill Gitea instance
+      shell: killall gitea
+      when: gitea_instance.stdout.find('app.ini') != -1
+    # - name: Output current date as a variable
+    #   shell: date
+    #   register: current_date
+    # - name: Generate Gitea LFS_JWT_SECRET
+    #   shell: gitea generate secret LFS_JWT_SECRET
+    #   register: gitea_lfs_jwt_secret
+    # - name: Generate Gitea INTERNAL_TOKEN
+    #   shell: gitea generate secret INTERNAL_TOKEN
+    #   register: gitea_internal_token
+    # - debug: var=gitea_cfg
+    # - name: Create Gitea config file
+    #   template:
+    #     src: tmpl/app.ini.j2
+    #     dest: /etc/gitea/app.ini
+    #     owner: root
+    #     group: gitea
+    #     mode: '0640'
+    #   vars:
+    #     GENERATED_AT: "{{ current_date.stdout }}"
+    #     LFS_JWT_SECRET: "{{ gitea_lfs_jwt_secret.stdout }}"
+    #     INTERNAL_TOKEN: "{{ gitea_internal_token.stdout }}"
+    #   when: gitea_cfg.stat.exists == false
+    - name: Check if Gitea SQLite3 database exists
+      stat: path=/var/lib/gitea/db/gitea.db
+      ignore_errors: true
+      register: gitea_db
+
+    - name: Create gitea database
+      shell: |
+        sudo -u gitea gitea migrate \
+        --config /etc/gitea/app.ini
+      when: gitea_db.stat.exists == false
+    # Insert INSTALL_LOCK after migrating DB
+    - name: Insert INSTALL_LOCK
+      lineinfile:
+        path: /etc/gitea/app.ini
+        regexp: '^INSTALL_LOCK'
+        insertafter: '^INTERNAL_TOKEN.*'
+        line: 'INSTALL_LOCK=true'
+    - name: Check that admin user exists
+      shell: |
+        sqlite3 \
+          /var/lib/gitea/db/gitea.db \
+          'select count(*) from user;'
+      register: gitea_count_users
+    - debug: var=gitea_count_users
+    - name: Create gitea admin user
+      shell: |
+        sudo -u gitea gitea admin user create --admin \
+        --username root \
+        --password root1234 \
+        --email root@gitea.tls
+      when: gitea_count_users.stdout != '1'
+    - name: Make sure Gitea is started
+      sysvinit:
         name: gitea
-        # Equivalent to --home /home/git
-        create_home: yes
-        # Equivalent to --shell /bin/bash
-        shell: /bin/bash
-        # Equivalent to --system
-        system: yes
-        # --disabled-password
-        password: '*'
-        # Equivalent to --gecos 'Git VC'
-        comment: Git Version Control
-        # --group
-        groups: gitea
-    - name: Create Gitea var dirs
-      file:
-        name: "/var/lib/gitea/{{ item }}"
-        state: directory
-        owner: gitea
-        group: gitea
-        mode: '0750'
-      with_items:
-        - custom
-        - data
-        - log
-    - name: Create Gitea etc dir
-      file:
-        name: /etc/gitea
-        state: directory
-        owner: root
-        group: gitea
-        mode: '0770'
-    - name: Output current date as a variable
-      shell: date
-      register: current_date
-    - name: Generate Gitea LFS_JWT_SECRET
-      shell: gitea generate secret LFS_JWT_SECRET
-      register: gitea_lfs_jwt_secret
-    - name: Generate Gitea INTERNAL_TOKEN
-      shell: gitea generate secret INTERNAL_TOKEN
-      register: gitea_internal_token
-    - name: Create Gitea config file
-      template:
-        src: tmpl/app.ini.j2
-        dest: /etc/gitea/app.ini
-        owner: root
-        group: gitea
-        mode: '0640'
-      vars:
-        GENERATED_AT: "{{ current_date.stdout }}"
-        LFS_JWT_SECRET: "{{ gitea_lfs_jwt_secret.stdout }}"
-        INTERNAL_TOKEN: "{{ gitea_internal_token.stdout }}"
+        state: started
+        enabled: yes
