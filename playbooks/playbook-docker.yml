@@ -12,6 +12,28 @@
       shell: echo {{ hostvars['GITEA_HOST']['OAUTH2_CLIENT_SECRET'] }}
       register: GITEA_CLIENT_SECRET
     - debug: var=GITEA_CLIENT_SECRET.stdout
+    ## BAD COPY-PASTA START ##
+    - name: Disable 3.15/main repo in /etc/apk/repositories
+      lineinfile:
+        dest: /etc/apk/repositories
+        regexp: '^(https?:\/\/[^/]*)\/v3\.15\/main.*$'
+        line: '#\1/v3.15/main\n'
+        backrefs: yes
+    - name: Enable edge/main repo in /etc/apk/repositories
+      lineinfile:
+        dest: /etc/apk/repositories
+        regexp: '^#(https?:\/\/([^/]*))\/edge\/main.*$'
+        line: '\1/edge/main'
+        state: present
+        backrefs: yes
+    - name: Enable edge/community repo in /etc/apk/repositories
+      lineinfile:
+        dest: /etc/apk/repositories
+        regexp: '^#(https?:\/\/([^/]*))\/edge\/community.*$'
+        line: '\1/edge/community'
+        state: present
+        backrefs: yes
+    ## BAD COPY-PASTA END ##
     - name: Install Docker
       apk:
         name:
