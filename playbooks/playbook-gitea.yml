@@ -152,7 +152,7 @@
       register: nginx_default
     - name: Disable default vhost (Nginx)
       command: mv /etc/nginx/http.d/default.conf /etc/nginx/http.d/default.disabled
-      when: gitea_db.stat.exists == true
+      when: nginx_default.stat.exists == true
     - name: Add default
       template:
         dest: /etc/nginx/http.d/gitea-proxy.conf
