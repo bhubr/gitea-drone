@@ -151,7 +151,7 @@
     - name: Add default
       template:
         dest: /etc/nginx/http.d/gitea-proxy.conf
-        src: templates/nginx-proxy-gitea.j2
+        src: tmpl/nginx-proxy-gitea.j2
         owner: root
         group: root
         mode: 0644
