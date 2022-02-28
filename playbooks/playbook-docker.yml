@@ -2,6 +2,8 @@
 - name: Install Docker
   hosts:
     - docker_new
+  vars:
+    DRONE_SERVER_PORT: 1337
   become: true
   tasks:
     - name: Echo the output - OAUTH2_CLIENT_ID
@@ -81,7 +83,8 @@
           DRONE_GITEA_CLIENT_ID={{ GITEA_CLIENT_ID.stdout }}
           DRONE_GITEA_CLIENT_SECRET=pass
           DRONE_RPC_SECRET=secret
-          DRONE_SERVER_HOST=drone:8080
+          DRONE_SERVER_HOST="drone:{{ DRONE_SERVER_PORT }}"
+          DRONE_SERVER_PORT=":{{ DRONE_SERVER_PORT }}"
           DRONE_SERVER_PROTO=http
         restart_policy: always
         volumes:
