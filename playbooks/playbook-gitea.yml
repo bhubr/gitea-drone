@@ -146,8 +146,13 @@
         --email root@gitea.tls
       when: gitea_count_users.stdout != '1'
     # Gitea étant configuré, on peut le démarrer
-    - name: Disable default symlink (Nginx)
+    - name: Check if Nginx default vhost has been renamed/removed
+      stat: path=/etc/nginx/http.d/default.conf
+      ignore_errors: true
+      register: nginx_default
+    - name: Disable default vhost (Nginx)
       command: mv /etc/nginx/http.d/default.conf /etc/nginx/http.d/default.disabled
+      when: gitea_db.stat.exists == true
     - name: Add default
       template:
         dest: /etc/nginx/http.d/gitea-proxy.conf
