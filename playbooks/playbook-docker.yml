@@ -100,7 +100,7 @@
           - 3300
         env:
           DRONE_RPC_PROTO=http
-          DRONE_RPC_HOST=drone
+          DRONE_RPC_HOST="drone:{{ DRONE_SERVER_PORT }}"
           DRONE_RPC_SECRET=secret
           DRONE_RUNNER_CAPACITY=2
           DRONE_RUNNER_NAME=my-runner
