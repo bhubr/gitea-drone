@@ -13,7 +13,7 @@ VALUES(
   '{{ OAUTH2_APP_NAME }}',
   '{{ OAUTH2_CLIENT_ID }}',
   '{{ OAUTH2_CLIENT_SECRET_HASHED }}',
-  '["http://drone:{{ DRONE_SERVER_PORT }}/login"]',
+  '["{{ DRONE_PROTO }}://{{ DRONE_HOST }}/login"]',
   {{ TIMESTAMP }},
   {{ TIMESTAMP }}
 )

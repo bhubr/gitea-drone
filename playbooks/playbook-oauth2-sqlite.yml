@@ -4,7 +4,8 @@
   hosts:
     - gitea_new
   vars:
-    DRONE_SERVER_PORT: 1337
+    DRONE_PROTO: http
+    DRONE_HOST: drone.tls
   become: true
   tasks:
     - name: SQLite and uuidgen
