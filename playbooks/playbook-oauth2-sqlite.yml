@@ -3,6 +3,8 @@
 - name: OAuth2 Gitea
   hosts:
     - gitea_new
+  vars:
+    DRONE_SERVER_PORT: 1337
   become: true
   tasks:
     - name: SQLite and uuidgen
