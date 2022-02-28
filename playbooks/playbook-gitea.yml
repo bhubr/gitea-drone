@@ -39,11 +39,14 @@
     # Ansible peut rencontrer des problèmes s'il ne peut
     # utiliser un shell Bash sur les "managed hosts"
     # En plus de Bash, on installe Gitea (forge logicielle)
+    # Également Nginx qui permettra de forwarder les requêtes
+    # de 80 à 3000
     - name: Install Bash, Gitea and SQLite
       apk:
         name:
           - bash
           - gitea
+          - nginx
           # - sqlite
         update_cache: yes
     # Le service doit être stoppé (state=stopped)
@@ -143,8 +146,22 @@
         --email root@gitea.tls
       when: gitea_count_users.stdout != '1'
     # Gitea étant configuré, on peut le démarrer
+    - name: Disable default symlink (Nginx)
+      command: mv /etc/nginx/http.d/default.conf /etc/nginx/http.d/default.disabled
+    - name: Add default
+      template:
+        dest: /etc/nginx/http.d/gitea-proxy.conf
+        src: templates/nginx-proxy-gitea.j2
+        owner: root
+        group: root
+        mode: 0644
     - name: Make sure Gitea is started
       service:
         name: gitea
         state: started
+        enabled: yes
+    - name: Make sure Nginx is restarted
+      service:
+        name: nginx
+        state: restarted
         enabled: yes
