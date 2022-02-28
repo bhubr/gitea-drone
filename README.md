@@ -387,6 +387,10 @@ sqlite3 /var/lib/gitea/db/gitea.db "UPDATE oauth2_application SET client_secret 
 
 ## TODO
 
+* Utilisation du Apache2 builtin de macOS pour proxy :
+
+    * gitea.tls -> 3000
+    * drone.tls -> 1337
 * Pass back loglevel to debug (app.ini/log)
 * Change default shell sur VMs Alpine : <https://wiki.alpinelinux.org/wiki/Change_default_shell#:~:text=Note%3A%20By%20default%20Alpine%20Linux,zsh%2C%20fish%20or%20another%20shell.&text=Now%20enter%20the%20path%20for,enter%20to%20confirm%20this%20change.>
 * Installer `jmespath` sur le contrôleur : `pip3 install jmespath`
@@ -399,6 +403,13 @@ sqlite3 /var/lib/gitea/db/gitea.db "UPDATE oauth2_application SET client_secret 
     * créer un nombre de comptes utilisateurs
 * Scripter clonage machine : [VBoxManage clonevm](https://docs.oracle.com/en/virtualization/virtualbox/6.0/user/vboxmanage-clonevm.html)
 
+
+
+## Playbook order
+
+* First gitea
+* Then oauth2-sqlite
+* Last docker
 
 ## Liens
 

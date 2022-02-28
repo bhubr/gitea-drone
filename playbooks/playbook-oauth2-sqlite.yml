@@ -40,22 +40,22 @@
     - name: Generate Client ID for OAuth2 app (UUID)
       shell: uuidgen
       register: client_id
-    - debug: var=client_id
+    # - debug: var=client_id
     - name: Generate Client Secret for OAuth2 app (44-char)
       # shell: openssl rand -hex 22
       shell: echo pass
       register: client_secret
-    - debug: var=client_secret
+    # - debug: var=client_secret
     - name: Generate hashed Secret with Bcrypt
       # shell: python3 -c "import crypt;print(crypt.crypt('{{ client_secret.stdout }}'))"
       # shell: python3 -c "import bcrypt;print(bcrypt.hashpw(b'pass', bcrypt.gensalt()))"
       shell: echo '$2b$12$ySq8kVpPW/ynAm.QQ8tnE.hQ1P9xbTPHbRbMduzXkDrKqPYqMgl7u'
       register: client_secret_hashed
-    - debug: var=client_secret_hashed
+    # - debug: var=client_secret_hashed
     - name: Generate Unix timestamp
       shell: date +%s
       register: current_timestamp
-    - debug: var=current_timestamp
+    # - debug: var=current_timestamp
     - name: Create query file
       template:
         src: tmpl/oauth2_app_insert.sql.j2
